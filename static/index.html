@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리가족 홈페이지</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .nav-welcome-msg { margin-right: 1rem; font-weight: 500; color: #333d4b; text-decoration: none; transition: color 0.2s; }
+        .nav-welcome-msg:hover { color: #0070F3; }
+        #nav-user-section .toss-button { margin-left: 0.5rem; }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <h1><a href="/" style="text-decoration:none; color:inherit;">🏡 우리 가족</a></h1>
+        <nav class="toss-nav">
+            <ul>
+                <li><a href="/" class="active">홈</a></li>
+                <li><a href="/album.html">앨범</a></li>
+                <li><a href="/board.html">게시판</a></li>
+                <li><a href="/calendar.html">캘린더</a></li>
+            </ul>
+        </nav>
+        <div id="nav-user-section" class="search-bar-container"></div>
+    </header>
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <div class="main-layout-area">
+                <div class="hero-banner-section">
+                    <h2>우리 가족의 소중한 순간들</h2>
+                    <p>함께 만들어가는 아름다운 추억, 이곳에서 공유하고 소통하세요.</p>
+                </div>
+                <div class="feature-cards-section">
+                    <div class="feature-grid">
+                        <a href="/album.html" class="feature-card"><h3>앨범 보러가기 📸</h3><p>가족과 함께한 행복한 순간들을 확인하세요.</p></a>
+                        <a href="/board.html" class="feature-card"><h3>게시판으로 가기 💬</h3><p>서로의 소식을 나누고 소통하는 공간입니다.</p></a>
+                        <a href="/calendar.html" class="feature-card"><h3>가족 캘린더 📅</h3><p>중요한 가족 행사와 일정을 함께 관리하세요.</p></a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

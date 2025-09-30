@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>앨범 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .no-photos-message { grid-column: 1 / -1; text-align: center; padding: 2rem; color: #4e5968; }
+        .nav-welcome-msg { margin-right: 1rem; font-weight: 500; color: #333d4b; }
+        #nav-user-section .toss-button { margin-left: 0.5rem; }
+        .photo-item { cursor: pointer; }
+        .modal-info .actions { display: flex; align-items: center; gap: 0.75rem; }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <h1><a href="/" style="text-decoration:none; color:inherit;">🏡 우리 가족</a></h1>
+        <nav class="toss-nav">
+            <ul>
+                <li><a href="/">홈</a></li>
+                <li><a href="/album.html" class="active">앨범</a></li>
+                <li><a href="/board.html">게시판</a></li>
+                <li><a href="/calendar.html">캘린더</a></li>
+            </ul>
+        </nav>
+        <div id="nav-user-section"></div>
+    </header>
+    <div class="page-content-wrapper">
+        <main id="main-content" class="toss-main"></main>
+    </div>
+    <div id="image-modal" class="modal-overlay" style="display: none;"></div>
+
+    <script src="auth.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+        const imageModal = document.getElementById('image-modal');
+        
+        async function fetchPhotos() {
+            try {
+                const response = await fetch('/api/photos', { credentials: 'include' });
+                const photos = await response.json();
+                const photoList = document.getElementById('photo-list');
+                photoList.innerHTML = '';
+                if (photos.length === 0) {
+                    photoList.innerHTML = '<p class="no-photos-message">아직 업로드된 사진이 없습니다.<br>첫 번째 추억을 올려보세요!</p>';
+                } else {
+                    photos.forEach(photo => {
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item';
+                        photoItem.innerHTML = `<img src="${photo.url}" alt="${photo.filename}">`;
+                        photoItem.addEventListener('click', () => openModal(photo));
+                        photoList.appendChild(photoItem);
+                    });
+                }
+            } catch (error) {
+                console.error('사진 로딩 오류:', error);
+                document.getElementById('photo-list').innerHTML = '<p class="no-photos-message" style="color: red;">사진을 불러오는 데 실패했습니다.</p>';
+            }
+        }
+
+        async function uploadPhoto(file) {
+            if (!file) return;
+            if (!currentUser) { alert('사진을 업로드하려면 로그인이 필요합니다.'); window.location.href = '/login.html'; return; }
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const response = await fetch('/api/photos', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                if (response.ok) {
+                    alert('사진이 성공적으로 업로드되었습니다!');
+                    fetchPhotos();
+                } else {
+                    const errorData = await response.json();
+                    alert(`사진 업로드 실패: ${errorData.error || '알 수 없는 오류'}`);
+                }
+            } catch (error) {
+                console.error('사진 업로드 오류:', error);
+                alert('사진 업로드 중 네트워크 오류가 발생했습니다.');
+            }
+        }
+
+        function openModal(photo) {
+            let deleteButtonHTML = '';
+            if (currentUser && (currentUser.username === 'admin' || currentUser.username === photo.uploader_username)) {
+                deleteButtonHTML = `<button class="modal-delete-btn" data-photo-id="${photo.id}">삭제</button>`;
+            }
+            imageModal.innerHTML = `
+                <div class="modal-content">
+                    <button class="modal-close-btn">&times;</button>
+                    <img src="${photo.url}" alt="${photo.filename}" class="modal-img">
+                    <div class="modal-info">
+                        <span class="modal-uploader">올린 사람: ${photo.uploader_nickname}</span>
+                        <div class="actions">
+                            ${deleteButtonHTML}
+                            <a href="${photo.url}" download="${photo.filename}" class="toss-button primary">저장</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            imageModal.style.display = 'flex';
+            imageModal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+            imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
+            const deleteBtn = imageModal.querySelector('.modal-delete-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => deletePhoto(deleteBtn.dataset.photoId));
+            }
+        }
+
+        function closeModal() {
+            imageModal.style.display = 'none';
+            imageModal.innerHTML = '';
+        }
+
+        async function deletePhoto(photoId) {
+            if (!confirm('정말로 이 사진을 삭제하시겠습니까?\n삭제된 사진은 복구할 수 없습니다.')) return;
+            try {
+                const response = await fetch(`/api/photos/${photoId}`, { method: 'DELETE', credentials: 'include' });
+                if (response.ok) {
+                    alert('사진이 삭제되었습니다.');
+                    closeModal();
+                    fetchPhotos();
+                } else {
+                    const errorData = await response.json();
+                    alert(`삭제 실패: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error('사진 삭제 오류:', error);
+                alert('사진 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        document.addEventListener('auth-checked', () => {
+            if (currentUser) {
+                mainContent.innerHTML = `
+                    <section class="content-section">
+                        <h2>앨범 📸</h2>
+                        <div id="photo-list" class="photo-grid"></div>
+                        <div class="upload-container">
+                            <label for="photo-input" class="toss-button primary">사진 올리기</label>
+                            <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                        </div>
+                    </section>
+                `;
+                document.getElementById('photo-input').addEventListener('change', (event) => uploadPhoto(event.target.files[0]));
+                fetchPhotos();
+            } else {
+                mainContent.innerHTML = `
+                    <section class="content-section" style="text-align: center;">
+                        <h2>🔒 앨범 보기</h2>
+                        <p style="margin: 1rem 0 1.5rem 0;">앨범을 보시려면 로그인이 필요합니다.</p>
+                        <a href="/login.html" class="toss-button primary">로그인 페이지로 이동</a>
+                    </section>
+                `;
+            }
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

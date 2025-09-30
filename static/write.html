@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글 작성 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="toss-header">
+        <h1><a href="/" style="text-decoration:none; color:inherit;">🏡 우리 가족</a></h1>
+        <nav class="toss-nav">
+             <ul>
+                <li><a href="/">홈</a></li>
+                <li><a href="/album.html">앨범</a></li>
+                <li><a href="/board.html" class="active">게시판</a></li>
+                <li><a href="/calendar.html">캘린더</a></li>
+            </ul>
+        </nav>
+        <div id="nav-user-section"></div>
+    </header>
+
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <section class="content-section">
+                <h2>새 글 작성하기</h2>
+                <form id="write-form">
+                    <div class="form-group">
+                        <label for="title">제목</label>
+                        <input type="text" id="title" name="title" class="toss-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">내용</label>
+                        <textarea id="content" name="content" class="toss-textarea" rows="10" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">이미지 첨부 (선택 사항)</label>
+                        <input type="file" id="image" name="image" class="toss-input" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <a href="/board.html" class="toss-button" style="background-color: #f2f4f6; color: #4e5968;">취소</a>
+                        <button type="submit" class="toss-button primary">글 올리기</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('auth-checked', () => {
+            if (!currentUser) {
+                alert('글을 작성하려면 로그인이 필요합니다.');
+                window.location.href = `/login.html?redirect=/write.html`;
+            }
+        });
+
+        document.getElementById('write-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            submitButton.disabled = true;
+            submitButton.textContent = '업로드 중...';
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('게시글이 성공적으로 등록되었습니다.');
+                    window.location.href = '/board.html';
+                } else {
+                    const errorData = await response.json();
+                    alert(`오류: ${errorData.error || '알 수 없는 오류가 발생했습니다.'}`);
+                    submitButton.disabled = false;
+                    submitButton.textContent = '글 올리기';
+                }
+            } catch (error) {
+                console.error('글 작성 오류:', error);
+                alert('글을 올리는 중 오류가 발생했습니다.');
+                submitButton.disabled = false;
+                submitButton.textContent = '글 올리기';
+            }
+        });
+    </script>
+    <script src="shared.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디 찾기 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-content-wrapper" style="max-width: 400px; margin-top: 5rem;">
+        <main class="toss-main">
+            <section class="content-section">
+                <h2 style="text-align: center;">아이디 찾기</h2>
+                <form id="find-id-form">
+                    <p style="text-align: center; color: #4e5968; margin-bottom: 1.5rem;">가입 시 사용한 닉네임을 입력해주세요.</p>
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="text" id="nickname" class="toss-input" placeholder="닉네임" required>
+                    </div>
+                    <button type="submit" class="toss-button primary full-width">아이디 찾기</button>
+                </form>
+                <div id="result-area" style="text-align: center; margin-top: 2rem;"></div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="/login.html" class="subtle-link">로그인 페이지로 돌아가기</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        document.getElementById('find-id-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nickname = document.getElementById('nickname').value;
+            const resultArea = document.getElementById('result-area');
+            try {
+                const response = await fetch('/api/find_id', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    resultArea.innerHTML = `<p>회원님의 아이디는 <strong>${data.usernames.join(', ')}</strong> 입니다.</p>`;
+                } else {
+                    resultArea.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                }
+            } catch (error) {
+                resultArea.innerHTML = `<p style="color: red;">요청 중 오류가 발생했습니다.</p>`;
+            }
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

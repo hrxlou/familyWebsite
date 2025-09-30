@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .post-item-link { text-decoration: none; color: inherit; display: block; }
+        .post-item-link .post-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px 0 rgba(31, 38, 135, 0.2); }
+        .nav-welcome-msg { font-weight: 500; color: #333d4b; white-space: nowrap; }
+        .pagination { display: flex; justify-content: center; align-items: center; margin-top: 2rem; gap: 0.5rem; }
+        .pagination button { background: white; border: 1px solid #ddd; border-radius: 5px; padding: 0.5rem 0.8rem; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
+        .pagination button:hover:not(:disabled) { background-color: #f0f0f0; }
+        .pagination button:disabled { cursor: not-allowed; opacity: 0.5; }
+        .pagination button.active { background-color: #0070F3; color: white; border-color: #0070F3; }
+        #nav-user-section .toss-button { margin-left: 0.5rem; }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <h1><a href="/" style="text-decoration:none; color:inherit;">🏡 우리 가족</a></h1>
+        <nav class="toss-nav">
+             <ul>
+                <li><a href="/">홈</a></li>
+                <li><a href="/album.html">앨범</a></li>
+                <li><a href="/board.html" class="active">게시판</a></li>
+                <li><a href="/calendar.html">캘린더</a></li>
+            </ul>
+        </nav>
+        <div id="nav-user-section"></div>
+    </header>
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <section class="content-section">
+                <div class="board-header">
+                    <h2>게시판 💬</h2>
+                    <a href="/write.html" id="write-post-btn" class="toss-button primary">글 남기기</a>
+                </div>
+                <div id="post-list-container" class="post-list"><p style="text-align:center;">게시글을 불러오는 중...</p></div>
+                <div id="pagination-controls" class="pagination"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const postListContainer = document.getElementById('post-list-container');
+        const paginationControls = document.getElementById('pagination-controls');
+        
+        async function fetchPosts(page = 1) {
+            try {
+                const response = await fetch(`/api/posts?page=${page}`);
+                if (!response.ok) throw new Error('게시글을 불러올 수 없습니다.');
+                const data = await response.json();
+                postListContainer.innerHTML = '';
+
+                if (data.posts.length === 0 && page === 1) {
+                    postListContainer.innerHTML = `<p style="text-align:center;">첫 번째 글을 작성해보세요!</p>`;
+                }
+
+                data.posts.forEach(post => {
+                    const postLink = document.createElement('a');
+                    postLink.href = `/post.html?id=${post.id}`;
+                    postLink.className = 'post-item-link';
+
+                    if (currentUser) {
+                        let imageHTML = '';
+                        if (post.image_url) {
+                            imageHTML = `<div class="post-item-thumbnail"><img src="${post.image_url}" alt="${post.title}"></div>`;
+                        }
+                        
+                        // 로그인 상태: 제목, 내용 일부, 썸네일 표시
+                        const excerpt = post.content.substring(0, 80) + (post.content.length > 80 ? '...' : '');
+                        postLink.innerHTML = `
+                            <div class="post-item">
+                                ${imageHTML}
+                                <div class="post-item-content">
+                                    <p class="post-title">${post.title}</p>
+                                    <p class="post-excerpt">${excerpt}</p>
+                                    <div class="post-meta">
+                                        <span class="post-author-link">${post.author_nickname}</span>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        // 비로그인 상태: 블라인드 처리
+                        postLink.href = '#';
+                        postLink.onclick = (e) => { e.preventDefault(); window.location.href = '/login.html'; };
+                        postLink.innerHTML = `
+                            <div class="post-item post-item-blind">
+                                <span class="icon">🔒</span>
+                                <span class="text">비밀글입니다. 로그인 후 확인해주세요.</span>
+                            </div>
+                        `;
+                    }
+                    postListContainer.appendChild(postLink);
+                });
+                renderPagination(data);
+            } catch (error) {
+                console.error("게시글 로딩 오류:", error);
+                postListContainer.innerHTML = `<p style="text-align:center; color:red;">게시글을 불러오는 데 실패했습니다.</p>`;
+            }
+        }
+        
+        function renderPagination(paginationData) {
+            paginationControls.innerHTML = '';
+            if (paginationData.total_pages <= 1) return;
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '이전';
+            prevButton.disabled = !paginationData.has_prev;
+            prevButton.onclick = () => fetchPosts(paginationData.page - 1);
+            paginationControls.appendChild(prevButton);
+            for (let i = 1; i <= paginationData.total_pages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === paginationData.page) pageButton.classList.add('active');
+                pageButton.onclick = () => fetchPosts(i);
+                paginationControls.appendChild(pageButton);
+            }
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '다음';
+            nextButton.disabled = !paginationData.has_next;
+            nextButton.onclick = () => fetchPosts(paginationData.page + 1);
+            paginationControls.appendChild(nextButton);
+        }
+
+        document.addEventListener('auth-checked', () => {
+            fetchPosts(1);
+            const writePostBtn = document.getElementById('write-post-btn');
+            // '글 남기기' 버튼은 로그인 여부에 따라 write.html에서 처리하므로, 여기서는 항상 보이게 둡니다.
+            // 비로그인 시 write.html에서 로그인 페이지로 리다이렉트됩니다.
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

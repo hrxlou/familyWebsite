@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 기존 스타일은 style.css 파일로 이동하거나 유지 */
+        .post-detail-header { 
+            margin-bottom: 2rem; 
+            padding-bottom: 1.5rem; 
+            border-bottom: 1px solid rgba(0,0,0,0.1); 
+            /* 수정/삭제 버튼을 위한 flexbox 설정 추가 */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .post-detail-header .title-meta-group {
+            flex-grow: 1;
+        }
+        .post-detail-header h2 { font-size: 1.8rem; margin: 0 0 0.5rem 0; }
+        .post-detail-header .post-meta { display: flex; justify-content: flex-end; }
+        .post-detail-content { line-height: 1.7; font-size: 1.05rem; min-height: 150px; white-space: pre-wrap; }
+        
+        /* 수정/삭제 버튼 컨테이너 */
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+        /* 수정/삭제 버튼 개별 스타일 */
+        .post-actions button {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .post-actions button:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <h1><a href="/" style="text-decoration:none; color:inherit;">🏡 우리 가족</a></h1>
+        <nav class="toss-nav">
+            <ul>
+                <li><a href="/">홈</a></li>
+                <li><a href="/album.html">앨범</a></li>
+                <li><a href="/board.html" class="active">게시판</a></li>
+                <li><a href="/calendar.html">캘린더</a></li>
+            </ul>
+        </nav>
+        <div id="nav-user-section" class="search-bar-container"></div>
+    </header>
+    <div class="page-content-wrapper">
+        <main id="main-content" class="toss-main">
+            <section class="content-section">
+                <!-- 게시글 상세 내용 또는 수정 폼이 표시될 컨테이너 -->
+                <div id="post-container">
+                    <p>게시글을 불러오는 중입니다...</p>
+                </div>
+                
+                <!-- 댓글 섹션 -->
+                <div class="comment-section">
+                    <h4>댓글</h4>
+                    <div id="comment-write-area"></div>
+                    <div id="comment-list" class="comment-list"></div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="/board.html" class="toss-button primary">목록으로 돌아가기</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const postContainer = document.getElementById('post-container');
+        const commentListContainer = document.getElementById('comment-list');
+        const commentWriteArea = document.getElementById('comment-write-area');
+        const currentPostId = new URLSearchParams(window.location.search).get('id');
+        let currentPostData = null; // 현재 게시글 데이터 저장
+
+        // 보기 모드 렌더링 함수
+        function renderPostView(post) {
+            currentPostData = post; // 데이터 저장
+            const imageHTML = post.image_url ? `<img src="${post.image_url}" alt="첨부 이미지" class="post-detail-image">` : '';
+            
+            // 작성자 또는 관리자일 경우 수정/삭제 버튼 추가
+            let actionsHTML = '';
+            if (currentUser && (currentUser.username === post.author_username || currentUser.username === 'admin')) {
+                actionsHTML = `
+                    <div class="post-actions">
+                        <button id="edit-post-btn">수정</button>
+                        <button id="delete-post-btn">삭제</button>
+                    </div>
+                `;
+            }
+
+            postContainer.innerHTML = `
+                <div class="post-detail-header">
+                    <div class="title-meta-group">
+                        <h2>${post.title}</h2>
+                        <div class="post-meta">
+                            <a href="/profile.html?username=${post.author_username}" class="post-author-tag">${post.author_nickname}</a>
+                        </div>
+                    </div>
+                    ${actionsHTML}
+                </div>
+                ${imageHTML}
+                <p class="post-detail-content">${post.content}</p>
+            `;
+        }
+
+        // 수정 모드 렌더링 함수
+        function renderEditView(post) {
+            postContainer.innerHTML = `
+                <form id="edit-post-form">
+                    <h2>글 수정하기</h2>
+                    <div class="form-group">
+                        <label for="edit-title">제목</label>
+                        <input type="text" id="edit-title" name="title" class="toss-input" value="${post.title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-content">내용</label>
+                        <textarea id="edit-content" name="content" class="toss-textarea" rows="10" required>${post.content}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-image">이미지 변경 (선택 사항)</label>
+                        <input type="file" id="edit-image" name="image" class="toss-input" accept="image/*">
+                        ${post.image_url ? `<p style="font-size:0.9rem; margin-top:0.5rem;">현재 이미지: ${post.image_url.split('/').pop()}</p>` : ''}
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancel-edit-btn" class="toss-button" style="background-color: #f2f4f6; color: #4e5968;">취소</button>
+                        <button type="submit" class="toss-button primary">저장</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        // 게시글 및 댓글 데이터 불러오기
+        async function fetchPostAndComments() {
+            if (!currentPostId) {
+                postContainer.innerHTML = '<p style="color: red;">게시글 ID를 찾을 수 없습니다.</p>';
+                return;
+            }
+            try {
+                const response = await fetch(`/api/posts/${currentPostId}`);
+                if (!response.ok) throw new Error('게시글을 불러올 수 없습니다.');
+                const post = await response.json();
+                
+                renderPostView(post); // 보기 모드로 렌더링
+                
+                const comments = post.comments || [];
+                commentListContainer.innerHTML = '';
+                comments.forEach(comment => {
+                    const commentItem = document.createElement('div');
+                    commentItem.className = 'comment-item';
+                    commentItem.innerHTML = `<p class="comment-author"><a href="/profile.html?username=${comment.author_username}" class="post-author-tag">${comment.author_nickname}</a></p><p class="comment-content">${comment.content}</p>`;
+                    commentListContainer.appendChild(commentItem);
+                });
+            } catch (error) {
+                console.error('Error fetching post:', error);
+                postContainer.innerHTML = '<p style="color: red;">게시글을 불러오는 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 댓글 제출
+        async function submitComment() {
+            const contentInput = document.getElementById('comment-content');
+            const content = contentInput.value.trim();
+            if (!content) { alert('댓글 내용을 입력해주세요.'); return; }
+            try {
+                const response = await fetch(`/api/posts/${currentPostId}/comments`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ content })
+                });
+                if (response.ok) {
+                    contentInput.value = '';
+                    await fetchPostAndComments();
+                } else { alert('댓글 등록에 실패했습니다.'); }
+            } catch (error) { console.error('Error submitting comment:', error); }
+        }
+
+        // 게시글 삭제 처리
+        async function deletePost() {
+            if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+            try {
+                const response = await fetch(`/api/posts/${currentPostId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.success);
+                    window.location.href = '/board.html';
+                } else {
+                    alert(`삭제 실패: ${data.error}`);
+                }
+            } catch (error) {
+                alert('게시글 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 게시글 수정 처리
+        async function updatePost(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch(`/api/posts/${currentPostId}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    body: formData
+                });
+                const updatedPost = await response.json();
+                if (response.ok) {
+                    alert('게시글이 성공적으로 수정되었습니다.');
+                    renderPostView(updatedPost); // 수정된 내용으로 다시 보기 모드 렌더링
+                } else {
+                    alert(`수정 실패: ${updatedPost.error}`);
+                }
+            } catch (error) {
+                alert('게시글 수정 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 이벤트 위임 (수정, 삭제, 수정폼 제출/취소)
+        postContainer.addEventListener('click', (e) => {
+            if (e.target.id === 'edit-post-btn') {
+                renderEditView(currentPostData);
+            } else if (e.target.id === 'delete-post-btn') {
+                deletePost();
+            } else if (e.target.id === 'cancel-edit-btn') {
+                renderPostView(currentPostData);
+            }
+        });
+
+        postContainer.addEventListener('submit', (e) => {
+            if (e.target.id === 'edit-post-form') {
+                updatePost(e);
+            }
+        });
+        
+        // 페이지 초기화
+        document.addEventListener('auth-checked', () => {
+            if (currentUser) {
+                fetchPostAndComments();
+                commentWriteArea.innerHTML = `<form id="comment-form" class="comment-input-group"><input type="text" id="comment-content" placeholder="댓글을 남겨주세요" class="toss-input" required><button type="submit" class="toss-button primary">등록</button></form>`;
+                document.getElementById('comment-form').addEventListener('submit', (e) => { e.preventDefault(); submitComment(); });
+            } else {
+                document.getElementById('main-content').innerHTML = `
+                    <section class="content-section" style="text-align: center;">
+                        <h2>🔒 게시글 보기</h2>
+                        <p style="margin: 1rem 0 1.5rem 0;">게시글을 보려면 로그인이 필요합니다.</p>
+                        <a href="/login.html?redirect=/post.html?id=${currentPostId}" class="toss-button primary">로그인 페이지로 이동</a>
+                    </section>
+                `;
+            }
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>
