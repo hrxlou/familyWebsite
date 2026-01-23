@@ -23,7 +23,7 @@ POSTS_PER_PAGE = 5
 # --- 데이터 저장소 (기존과 동일) ---
 users = {}
 with app.app_context():
-    admin_password_hash = bcrypt.generate_password_hash('Tempest1570!').decode('utf-8')
+    admin_password_hash = bcrypt.generate_password_hash('// 테스트용 패스워드 입력').decode('utf-8')
     users['admin'] = {
         "password_hash": admin_password_hash,
         "nickname": "관리자",
