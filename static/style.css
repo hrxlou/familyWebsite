@@ -132,6 +132,12 @@ body {
     z-index: 1000;
 }
 
+.toss-header.scrolled {
+    box-shadow: var(--shadow-md);
+    background-color: var(--color-bg-header);
+    border-bottom-color: var(--color-border-medium);
+}
+
 .header-inner {
     width: 100%;
     max-width: 1100px;

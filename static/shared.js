@@ -19,13 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('.toss-header');
     if (header) {
         window.addEventListener('scroll', () => {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             if (window.scrollY > 20) {
-                header.style.boxShadow = 'var(--shadow-md)';
-                header.style.backgroundColor = isDark ? 'rgba(30, 31, 33, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+                header.classList.add('scrolled');
             } else {
-                header.style.boxShadow = 'none';
-                header.style.backgroundColor = 'var(--color-bg-header)';
+                header.classList.remove('scrolled');
             }
         });
     }
@@ -50,11 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.documentElement.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateBtnIcon(newTheme);
-                
-                // 스크롤 중일 때 헤더 색상 즉시 업데이트
-                if (window.scrollY > 20 && header) {
-                    header.style.backgroundColor = newTheme === 'dark' ? 'rgba(30, 31, 33, 0.85)' : 'rgba(255, 255, 255, 0.85)';
-                }
             });
             
             navRight.prepend(themeBtn);
