@@ -20,11 +20,12 @@
             text-align: center;
         }
         .auth-card {
-            background: white;
+            background: var(--color-bg-card);
             padding: 40px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--color-border-light);
+            backdrop-filter: blur(var(--glass-blur));
         }
     </style>
 </head>
@@ -47,12 +48,12 @@
                     <button type="submit" id="login-btn" class="toss-button primary full-width" style="height: 52px; font-size: 1.1rem;">로그인</button>
                 </form>
 
-                <div style="margin-top: 32px; border-top: 1px solid var(--color-border-light); padding-top: 24px; display: flex; justify-content: center; gap: 16px; font-size: 0.85rem;">
-                    <a href="/signup.html" class="subtle-link" style="margin: 0;">회원가입</a>
-                    <span style="color: var(--color-border-medium);">|</span>
-                    <a href="/find_id.html" class="subtle-link" style="margin: 0;">아이디 찾기</a>
-                    <span style="color: var(--color-border-medium);">|</span>
-                    <a href="/reset_password.html" class="subtle-link" style="margin: 0;">비밀번호 재설정</a>
+                <div class="auth-footer-links">
+                    <a href="/signup.html" class="subtle-link">회원가입</a>
+                    <span class="divider">|</span>
+                    <a href="/find_id.html" class="subtle-link">아이디 찾기</a>
+                    <span class="divider">|</span>
+                    <a href="/reset_password.html" class="subtle-link">비밀번호 재설정</a>
                 </div>
             </div>
             

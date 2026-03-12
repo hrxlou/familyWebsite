@@ -20,11 +20,12 @@
             text-align: center;
         }
         .auth-card {
-            background: white;
+            background: var(--color-bg-card);
             padding: 40px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--color-border-light);
+            backdrop-filter: blur(var(--glass-blur));
         }
     </style>
 </head>
@@ -51,8 +52,8 @@
                     <button type="submit" id="signup-btn" class="toss-button primary full-width" style="height: 52px; font-size: 1.1rem;">가입하기</button>
                 </form>
 
-                <div style="margin-top: 32px; border-top: 1px solid var(--color-border-light); padding-top: 24px; font-size: 0.9rem;">
-                    이미 계정이 있나요? <a href="/login.html" class="subtle-link" style="color: var(--color-primary); font-weight: 600;">로그인</a>
+                <div class="auth-footer-simple">
+                    이미 계정이 있나요? <a href="/login.html" class="subtle-link highlight">로그인</a>
                 </div>
             </div>
             
