@@ -177,7 +177,8 @@
                     const item = document.createElement('div');
                     item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-bg-input); border-radius: 12px;';
 
-                    const type = e.id.startsWith('h_') ? 'holiday' : (e.id.startsWith('a_') ? 'anniversary' : 'event');
+                    const sId = e.id.toString();
+                    const type = sId.startsWith('h_') ? 'holiday' : (sId.startsWith('a_') ? 'anniversary' : 'event');
                     const icon = type === 'holiday' ? '🇰🇷' : (type === 'anniversary' ? '🎂' : '📌');
                     const color = type === 'holiday' ? 'var(--color-red)' : (type === 'anniversary' ? '#2ecc71' : 'var(--color-primary)');
                     
