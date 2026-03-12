@@ -46,9 +46,9 @@
     /* Spacing */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
-    --spacing-md: 24px;
-    --spacing-lg: 32px;
-    --spacing-xl: 64px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 48px;
 
     /* Transitions */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -112,8 +112,8 @@ body {
 }
 
 .content-section {
-    padding: 40px;
-    margin-bottom: 40px;
+    padding: 32px;
+    margin-bottom: 32px;
 }
 
 .content-section, .feature-card, .post-item, .modal-content, .chatbot-window, .upcoming-card {
@@ -181,9 +181,9 @@ body {
 
 /* --- UI Components --- */
 .hero-banner {
-    padding: 80px 32px;
+    padding: 60px 24px;
     text-align: center;
-    margin-bottom: 64px;
+    margin-bottom: 48px;
     border-radius: var(--radius-lg);
     background: radial-gradient(circle at center, var(--color-primary-light), transparent);
 }
@@ -465,7 +465,7 @@ body {
 
 /* --- Upcoming Cards --- */
 .upcoming-card {
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -474,7 +474,7 @@ body {
 /* --- Profile Specific --- */
 .profile-card {
     background-color: var(--color-bg-card);
-    padding: 64px 48px;
+    padding: 48px 32px;
     border-radius: var(--radius-lg);
 }
 
@@ -542,9 +542,8 @@ body {
 .mb-32 { margin-bottom: 32px; }
 .mb-40 { margin-bottom: 40px; }
 .mb-48 { margin-bottom: 48px; }
-.mb-64 { margin-bottom: 64px; }
+.mt-40 { margin-top: 40px; }
 .mt-48 { margin-top: 48px; }
-.mt-64 { margin-top: 64px; }
 
 .text-center { text-align: center; }
 .w-full { width: 100%; }
