@@ -144,10 +144,9 @@
                     const formattedDate = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
                     const dayName = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
                     
-                    const typeIcon = item.type === 'anniversary' ? '🎂' : '📌';
-                    const typeColor = item.type === 'anniversary' ? 'var(--color-red)' : 'var(--color-primary)';
-                    const typeLabel = item.type === 'anniversary' ? '기념일' : '일정';
-                    const labelClass = item.type === 'anniversary' ? 'label-anniv' : 'label-event';
+                    const typeIcon = item.id.startsWith('h_') ? '🇰🇷' : (item.id.startsWith('a_') ? '🎂' : '📌');
+                    const typeLabel = item.id.startsWith('h_') ? '공휴일' : (item.id.startsWith('a_') ? '기념일' : '일정');
+                    const labelClass = item.id.startsWith('h_') ? 'label-holiday' : (item.id.startsWith('a_') ? 'label-anniv' : 'label-event');
 
                     card.innerHTML = `
                         <div class="flex-between">

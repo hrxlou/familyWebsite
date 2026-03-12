@@ -65,7 +65,17 @@
                 <h3 style="font-size: 1rem; margin-bottom: 16px;">새 일정 추가 📌</h3>
                 <div class="flex-column gap-16">
                     <input type="text" id="new-event-title" class="toss-input" placeholder="일정 제목을 입력하세요">
-                    <button class="toss-button primary w-full" onclick="addEventFromModal()">추가하기</button>
+                    
+                    <div class="flex-center gap-16" style="justify-content: flex-start;">
+                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.9rem;">
+                            <input type="radio" name="event-type" value="event" checked> 1회성
+                        </label>
+                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.9rem;">
+                            <input type="radio" name="event-type" value="anniversary"> 매년 반복 (생일 등)
+                        </label>
+                    </div>
+
+                    <button class="toss-button primary w-full" onclick="saveEventFromModal()">추가하기</button>
                 </div>
             </div>
         </div>
@@ -117,7 +127,12 @@
                         const tag = document.createElement('div');
                         tag.className = 'event-tag';
                         tag.textContent = e.title;
-                        tag.style.backgroundColor = e.type === 'anniversary' ? 'var(--color-red)' : 'var(--color-primary)';
+                        
+                        // 타입별 색상 지정
+                        if (e.type === 'holiday') tag.style.backgroundColor = 'var(--color-red)';
+                        else if (e.type === 'anniversary') tag.style.backgroundColor = '#2ecc71'; // 초록
+                        else tag.style.backgroundColor = 'var(--color-primary)'; // 파랑
+                        
                         day.appendChild(tag);
                     });
 
@@ -162,27 +177,29 @@
                     const item = document.createElement('div');
                     item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-bg-input); border-radius: 12px;';
 
-                    
-                    const isAnniv = e.type === 'anniversary';
-                    const icon = isAnniv ? '🎂' : '📌';
+                    const type = e.id.startsWith('h_') ? 'holiday' : (e.id.startsWith('a_') ? 'anniversary' : 'event');
+                    const icon = type === 'holiday' ? '🇰🇷' : (type === 'anniversary' ? '🎂' : '📌');
+                    const color = type === 'holiday' ? 'var(--color-red)' : (type === 'anniversary' ? '#2ecc71' : 'var(--color-primary)');
                     
                     item.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span>${icon}</span>
-                            <span style="font-weight: 600; color: var(--color-text-primary);">${e.title}</span>
+                            <span style="font-weight: 600; color: var(--color-text-primary); text-decoration: ${type === 'holiday' ? 'underline decoration-dotted' : 'none'};">${e.title}</span>
                         </div>
                     `;
                     
                     // 삭제 버튼 (본인 일정 또는 관리자만)
-                    if (currentUser && !isAnniv) {
+                    if (currentUser && type !== 'holiday') {
                         const delBtn = document.createElement('button');
                         delBtn.innerHTML = '&times;';
                         delBtn.style.cssText = 'background: none; border: none; color: var(--color-red); font-size: 1.2rem; cursor: pointer; padding: 0 4px;';
-                        delBtn.onclick = () => deleteEvent(e.id);
+                        
+                        const idValue = e.id.toString().includes('_') ? e.id.split('_')[1] : e.id;
+                        delBtn.onclick = () => deleteItem(idValue, type);
                         item.appendChild(delBtn);
-                    } else if (isAnniv) {
+                    } else if (type === 'holiday') {
                         const tag = document.createElement('span');
-                        tag.textContent = '기념일';
+                        tag.textContent = '공휴일';
                         tag.style.cssText = 'font-size: 0.75rem; color: var(--color-red); background: rgba(240, 68, 82, 0.1); padding: 2px 6px; border-radius: 4px;';
                         item.appendChild(tag);
                     }
@@ -199,14 +216,20 @@
             document.getElementById('new-event-title').value = '';
         }
 
-        async function addEventFromModal() {
+        async function saveEventFromModal() {
             if (!currentUser) return alert('로그인이 필요합니다.');
-            const title = document.getElementById('new-event-title').value;
+            const title = document.getElementById('new-event-title').value.trim();
             if (!title) return alert('일정 제목을 입력하세요.');
             
+            const typeValue = document.querySelector('input[name="event-type"]:checked').value;
+            
             try {
-                await api.post('/events', { title, date: selectedDate, type: 'event' });
-                // 새로고침 대신 모달 데이터만 업데이트 하거나 전체 렌더링
+                if (typeValue === 'event') {
+                    await api.post('/events', { title, date: selectedDate });
+                } else {
+                    const [y, m, d] = selectedDate.split('-');
+                    await api.post('/anniversaries', { title, month: parseInt(m), day: parseInt(d) });
+                }
                 closeEventModal();
                 renderCalendar();
             } catch (error) {
@@ -214,11 +237,11 @@
             }
         }
 
-        async function deleteEvent(id) {
-            if (!confirm('일정을 삭제하시겠습니까?')) return;
+        async function deleteItem(id, type) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
             try {
-                // 이 예제에서는 event_id가 숫자임 (models.py의 Event.id)
-                await api.delete(`/events/${id}`);
+                const endpoint = type === 'anniversary' ? `/anniversaries/${id}` : `/events/${id}`;
+                await api.delete(endpoint);
                 closeEventModal();
                 renderCalendar();
             } catch (error) {
