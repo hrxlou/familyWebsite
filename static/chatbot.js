@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messagesContainer = document.querySelector('.chat-messages');
     const inputForm = document.querySelector('.chat-input-form');
     const inputField = inputForm.querySelector('input');
+    const CHAT_HISTORY_KEY = 'family_chatbot_history_v5';
 
     // --- 챗봇 규칙 엔진 데이터베이스 (V5: 매머드급 확장) ---
     const chatbotRules = [
