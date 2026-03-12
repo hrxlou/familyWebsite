@@ -114,6 +114,10 @@
                         </div>
                     `;
                     
+                    card.onclick = () => {
+                        window.openLightbox(photo.url);
+                    };
+                    
                     if (currentUser && (currentUser.username === 'admin' || currentUser.username === photo.uploader_username)) {
                         const delBtn = document.createElement('button');
                         delBtn.className = 'delete-btn';

@@ -83,7 +83,6 @@
                         <button class="toss-button" onclick="changeMonth(1)" style="padding: 8px 12px;"> > </button>
                     </div>
                 </div>
-                <button class="toss-button primary" onclick="openEventAddModal()">일정 추가</button>
             </div>
 
             <div class="calendar-grid" id="calendar-grid">
@@ -100,16 +99,38 @@
         </main>
     </div>
 
+    <!-- 일정 상세 및 추가 모달 -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 id="modal-date-label" style="font-size: 1.5rem;">2024년 05월 12일</h2>
+                <button onclick="closeEventModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-tertiary);">&times;</button>
+            </div>
+            
+            <div id="modal-event-list" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;">
+                <!-- 일정 목록이 여기에 주입됨 -->
+            </div>
+
+            <div style="border-top: 1px solid var(--color-border-light); padding-top: 24px;">
+                <h3 style="font-size: 1rem; margin-bottom: 16px;">새 일정 추가 📌</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="new-event-title" class="toss-input" placeholder="일정 제목을 입력하세요">
+                    <button class="toss-button primary full-width" onclick="addEventFromModal()">추가하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth();
+        let selectedDate = '';
 
         async function renderCalendar() {
             const gridEl = document.getElementById('calendar-grid');
             const labelEl = document.getElementById('current-month-label');
             labelEl.textContent = `${currentYear}년 ${currentMonth + 1}월`;
             
-            // Clear previous day cells (keep first 7 header cells)
             while (gridEl.children.length > 7) gridEl.removeChild(gridEl.lastChild);
 
             try {
@@ -119,7 +140,6 @@
                 const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
                 const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
 
-                // Fill previous month days
                 for (let i = firstDay - 1; i >= 0; i--) {
                     const day = document.createElement('div');
                     day.className = 'day-cell other-month';
@@ -127,7 +147,6 @@
                     gridEl.appendChild(day);
                 }
 
-                // Fill current month days
                 const today = new Date();
                 const isThisMonth = today.getFullYear() === currentYear && today.getMonth() === currentMonth;
 
@@ -141,7 +160,6 @@
 
                     day.innerHTML = `<span class="day-num">${d}</span>`;
                     
-                    // Add events
                     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     const dayEvents = events.filter(e => e.date === dateStr);
                     
@@ -149,7 +167,7 @@
                         const tag = document.createElement('div');
                         tag.className = 'event-tag';
                         tag.textContent = e.title;
-                        tag.style.backgroundColor = e.type === 'anniversary' ? 'var(--color-green)' : 'var(--color-primary)';
+                        tag.style.backgroundColor = e.type === 'anniversary' ? 'var(--color-red)' : 'var(--color-primary)';
                         day.appendChild(tag);
                     });
 
@@ -157,7 +175,6 @@
                     gridEl.appendChild(day);
                 }
 
-                // Fill next month days
                 const remainingCells = 42 - (gridEl.children.length - 7);
                 for (let i = 1; i <= remainingCells; i++) {
                     const day = document.createElement('div');
@@ -178,20 +195,90 @@
             renderCalendar();
         }
 
-        function openEventAddModal() {
+        function openEventDetail(date, dayEvents) {
+            selectedDate = date;
+            const modal = document.getElementById('event-modal');
+            const dateLabel = document.getElementById('modal-date-label');
+            const listEl = document.getElementById('modal-event-list');
+            
+            const [y, m, d] = date.split('-');
+            dateLabel.textContent = `${y}년 ${m}월 ${d}일`;
+            
+            listEl.innerHTML = '';
+            if (dayEvents.length === 0) {
+                listEl.innerHTML = '<p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">등록된 일정이 없습니다.</p>';
+            } else {
+                dayEvents.forEach(e => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f9fafb; border-radius: 12px;';
+                    
+                    const isAnniv = e.type === 'anniversary';
+                    const icon = isAnniv ? '🎂' : '📌';
+                    
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>${icon}</span>
+                            <span style="font-weight: 600; color: var(--color-text-primary);">${e.title}</span>
+                        </div>
+                    `;
+                    
+                    // 삭제 버튼 (본인 일정 또는 관리자만)
+                    if (currentUser && !isAnniv) {
+                        const delBtn = document.createElement('button');
+                        delBtn.innerHTML = '&times;';
+                        delBtn.style.cssText = 'background: none; border: none; color: var(--color-red); font-size: 1.2rem; cursor: pointer; padding: 0 4px;';
+                        delBtn.onclick = () => deleteEvent(e.id);
+                        item.appendChild(delBtn);
+                    } else if (isAnniv) {
+                        const tag = document.createElement('span');
+                        tag.textContent = '기념일';
+                        tag.style.cssText = 'font-size: 0.75rem; color: var(--color-red); background: rgba(240, 68, 82, 0.1); padding: 2px 6px; border-radius: 4px;';
+                        item.appendChild(tag);
+                    }
+                    
+                    listEl.appendChild(item);
+                });
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeEventModal() {
+            document.getElementById('event-modal').style.display = 'none';
+            document.getElementById('new-event-title').value = '';
+        }
+
+        async function addEventFromModal() {
             if (!currentUser) return alert('로그인이 필요합니다.');
-            const title = prompt('일정 제목을 입력하세요:');
-            const date = prompt('날짜를 입력하세요 (YYYY-MM-DD):', `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-01`);
-            if (title && date) {
-                api.post('/events', { title, date, type: 'event' }).then(() => renderCalendar());
+            const title = document.getElementById('new-event-title').value;
+            if (!title) return alert('일정 제목을 입력하세요.');
+            
+            try {
+                await api.post('/events', { title, date: selectedDate, type: 'event' });
+                // 새로고침 대신 모달 데이터만 업데이트 하거나 전체 렌더링
+                closeEventModal();
+                renderCalendar();
+            } catch (error) {
+                alert(`추가 실패: ${error.message}`);
             }
         }
 
-        function openEventDetail(date, dayEvents) {
-            if (dayEvents.length > 0) {
-                alert(`${date}\n---\n${dayEvents.map(e => `• ${e.title}`).join('\n')}`);
+        async function deleteEvent(id) {
+            if (!confirm('일정을 삭제하시겠습니까?')) return;
+            try {
+                // 이 예제에서는 event_id가 숫자임 (models.py의 Event.id)
+                await api.delete(`/events/${id}`);
+                closeEventModal();
+                renderCalendar();
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
             }
         }
+
+        window.onclick = (event) => {
+            const modal = document.getElementById('event-modal');
+            if (event.target === modal) closeEventModal();
+        };
 
         document.addEventListener('auth-checked', renderCalendar);
     </script>

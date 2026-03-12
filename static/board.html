@@ -22,7 +22,13 @@
                     <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 게시판 📝</h2>
                     <p style="color: var(--color-text-secondary);">우리 가족의 소소한 이야기를 나누어보세요.</p>
                 </div>
-                <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none;">글쓰기</a>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <div style="position: relative; width: 240px;">
+                        <span style="position: absolute; left: 14px; top: 12px; color: var(--color-text-quaternary);">🔍</span>
+                        <input type="text" id="search-input" class="toss-input" placeholder="검색어를 입력하세요" style="padding-left: 40px; height: 44px; font-size: 0.95rem;">
+                    </div>
+                    <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none; height: 44px;">글쓰기</a>
+                </div>
             </div>
 
             <section class="content-section" style="padding: 0; background: none; border: none; box-shadow: none;">
@@ -36,8 +42,9 @@
 
     <script>
         let currentPage = 1;
+        let currentSearch = '';
 
-        async function loadPosts(page) {
+        async function loadPosts(page, query = '') {
             const listEl = document.getElementById('post-list');
             const paginationEl = document.getElementById('pagination');
             const loadingEl = document.getElementById('loading');
@@ -46,8 +53,10 @@
             paginationEl.innerHTML = '';
             loadingEl.style.display = 'block';
 
+            currentSearch = query;
+
             try {
-                const data = await api.get(`/posts?page=${page}`);
+                const data = await api.get(`/posts?page=${page}&q=${encodeURIComponent(query)}`);
                 loadingEl.style.display = 'none';
                 
                 if (data.posts.length === 0) {
@@ -82,7 +91,7 @@
                     const prevBtn = document.createElement('button');
                     prevBtn.className = 'toss-button';
                     prevBtn.textContent = '이전';
-                    prevBtn.onclick = () => loadPosts(page - 1);
+                    prevBtn.onclick = () => loadPosts(page - 1, currentSearch);
                     paginationEl.appendChild(prevBtn);
                 }
 
@@ -90,7 +99,7 @@
                     const nextBtn = document.createElement('button');
                     nextBtn.className = 'toss-button';
                     nextBtn.textContent = '다음';
-                    nextBtn.onclick = () => loadPosts(page + 1);
+                    nextBtn.onclick = () => loadPosts(page + 1, currentSearch);
                     paginationEl.appendChild(nextBtn);
                 }
                 
@@ -108,7 +117,19 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => loadPosts(1));
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPosts(1);
+            
+            // Search input handler with debounce
+            let debounceTimer;
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    loadPosts(1, e.target.value);
+                }, 400);
+            });
+        });
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>

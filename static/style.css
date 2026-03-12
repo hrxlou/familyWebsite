@@ -51,6 +51,36 @@
     /* Transitions */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-theme: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+:root[data-theme='dark'] {
+    --color-text-primary: #f2f4f6;
+    --color-text-secondary: #adb5bd;
+    --color-text-tertiary: #8b95a1;
+    --color-text-quaternary: #4e5968;
+    
+    --color-bg-base: #111111;
+    --color-bg-card: rgba(30, 31, 33, 0.9);
+    --color-bg-header: rgba(17, 17, 17, 0.85);
+    
+    --color-border-light: rgba(255, 255, 255, 0.1);
+    --color-border-medium: rgba(255, 255, 255, 0.15);
+    --color-border-glass: rgba(255, 255, 255, 0.08);
+    
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+    
+    --gradient-hero: linear-gradient(135deg, #1c1d21 0%, #111111 100%);
+}
+
+body {
+    transition: var(--transition-theme);
+}
+
+.content-section, .toss-header, .feature-card, .post-item, .modal-content, .chatbot-window {
+    transition: var(--transition-theme), transform 0.3s ease;
 }
 
 /* --- Base Styles --- */

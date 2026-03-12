@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👨‍👩‍👧‍👦 우리 가족 - 메인</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3182f6">
     <script src="api.js"></script>
 </head>
 <body>
@@ -68,6 +70,18 @@
                     </div>
                 </section>
             </div>
+
+            <!-- Upcoming Anniversaries Section -->
+            <section class="content-section" style="margin-top: 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 1.25rem;">다가오는 기념일 & 일정 📅</h2>
+                    <a href="/calendar.html" class="subtle-link">캘린더 보기 ></a>
+                </div>
+                <div id="upcoming-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+                    <!-- JS injected -->
+                    <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -109,6 +123,41 @@
                 });
                 if (photosData.length === 0) photosGrid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--color-text-tertiary);">사진이 없습니다.</p>';
 
+                // Load upcoming anniversaries
+                const upcomingData = await api.get('/upcoming');
+                const upcomingList = document.getElementById('upcoming-list');
+                upcomingList.innerHTML = '';
+                
+                upcomingData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.style.cssText = `
+                        background: #fff;
+                        padding: 16px;
+                        border-radius: 16px;
+                        border: 1px solid var(--color-border-light);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    `;
+                    
+                    const dateObj = new Date(item.date);
+                    const formattedDate = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
+                    const dayName = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
+                    
+                    const typeIcon = item.type === 'anniversary' ? '🎂' : '📌';
+                    const typeColor = item.type === 'anniversary' ? 'var(--color-red)' : 'var(--color-primary)';
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.8rem; font-weight: 600; color: ${typeColor}; background: ${typeColor === 'var(--color-red)' ? 'rgba(240, 68, 82, 0.1)' : 'var(--color-primary-light)'}; padding: 2px 8px; border-radius: 6px;">${item.type === 'anniversary' ? '기념일' : '일정'}</span>
+                            <span style="font-size: 0.85rem; color: var(--color-text-tertiary);">${formattedDate} (${dayName})</span>
+                        </div>
+                        <div style="font-weight: 700; color: var(--color-text-primary); margin-top: 4px;">${typeIcon} ${item.title}</div>
+                    `;
+                    upcomingList.appendChild(card);
+                });
+                if (upcomingData.length === 0) upcomingList.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--color-text-tertiary);">다가오는 일정이 없습니다.</p>';
+
             } catch (error) {
                 console.error('Home preview load failed:', error);
             }
@@ -119,5 +168,16 @@
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
     <script src="shared.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('SW registered:', reg);
+                }).catch(err => {
+                    console.log('SW reg failed:', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

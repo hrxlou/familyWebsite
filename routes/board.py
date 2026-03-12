@@ -12,7 +12,16 @@ POSTS_PER_PAGE = 5
 def handle_posts():
     if request.method == 'GET':
         page = request.args.get('page', 1, type=int)
-        pagination = Post.query.order_by(Post.id.desc()).paginate(page=page, per_page=POSTS_PER_PAGE, error_out=False)
+        search_query = request.args.get('q', '', type=str)
+        
+        query = Post.query
+        if search_query:
+            query = query.filter(
+                (Post.title.contains(search_query)) | 
+                (Post.content.contains(search_query))
+            )
+            
+        pagination = query.order_by(Post.id.desc()).paginate(page=page, per_page=POSTS_PER_PAGE, error_out=False)
         posts = [post.to_dict() for post in pagination.items]
         return jsonify({
             'posts': posts,

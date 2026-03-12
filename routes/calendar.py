@@ -109,3 +109,45 @@ def handle_event(event_id):
         db.session.delete(event)
         db.session.commit()
         return '', 204
+
+@calendar_bp.route('/upcoming', methods=['GET'])
+def get_upcoming():
+    today = datetime.date.today()
+    thirty_days_later = today + datetime.timedelta(days=30)
+    
+    upcoming_items = []
+    
+    # 1. Events in the next 30 days
+    events = Event.query.filter(Event.date >= today.strftime('%Y-%m-%d'), Event.date <= thirty_days_later.strftime('%Y-%m-%d')).all()
+    upcoming_items.extend([e.to_dict() for e in events])
+    
+    # 2. Anniversaries in the next 30 days
+    # This is slightly more complex because anniversaries repeat every year
+    all_annivs = Anniversary.query.all()
+    for anniv in all_annivs:
+        # Check this year's occurrence
+        anniv_this_year = datetime.date(today.year, anniv.month, anniv.day)
+        
+        # Check if it falls within the next 30 days (considering year transition)
+        if today <= anniv_this_year <= thirty_days_later:
+            upcoming_items.append({
+                "id": f"a_{anniv.id}",
+                "date": anniv_this_year.strftime('%Y-%m-%d'),
+                "title": anniv.title,
+                "type": "anniversary"
+            })
+        else:
+            # Check next year's occurrence (if 30 days spans across years)
+            anniv_next_year = datetime.date(today.year + 1, anniv.month, anniv.day)
+            if today <= anniv_next_year <= thirty_days_later:
+                upcoming_items.append({
+                    "id": f"a_{anniv.id}",
+                    "date": anniv_next_year.strftime('%Y-%m-%d'),
+                    "title": anniv.title,
+                    "type": "anniversary"
+                })
+                
+    # Sort by date
+    upcoming_items.sort(key=lambda x: x['date'])
+    
+    return jsonify(upcoming_items[:5]) # Return up to 5 items
