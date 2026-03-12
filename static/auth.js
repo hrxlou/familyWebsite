@@ -28,8 +28,7 @@ function updateHeader(isLoggedIn, nickname = '') {
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
     } else {
         navUserSection.innerHTML = `
-            <a href="/login.html" class="subtle-link mr-12">로그인</a>
-            <a href="/signup.html" class="toss-button primary start-btn">시작하기</a>
+            <a href="/login.html" class="toss-button primary login-btn-header" style="height: 38px; padding: 0 20px; font-size: 0.9rem;">로그인</a>
         `;
     }
 }
