@@ -52,11 +52,11 @@
             </section>
 
             <!-- Dynamic Content Previews -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px;">
+            <div class="home-dynamic-row">
                 <!-- Recent Posts -->
-                <section class="content-section" style="margin-bottom: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="font-size: 1.25rem;">최근 소식 📝</h2>
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>최근 소식 📝</h2>
                         <a href="/board.html" class="subtle-link">더보기 ></a>
                     </div>
                     <div id="recent-posts-list" class="post-list">
@@ -66,12 +66,12 @@
                 </section>
 
                 <!-- Recent Photos -->
-                <section class="content-section" style="margin-bottom: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="font-size: 1.25rem;">최근 앨범 📸</h2>
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>최근 앨범 📸</h2>
                         <a href="/album.html" class="subtle-link">더보기 ></a>
                     </div>
-                    <div id="recent-photos-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div id="recent-photos-grid">
                         <!-- JS injected -->
                         <p style="grid-column: span 2; color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
                     </div>
@@ -79,9 +79,9 @@
             </div>
 
             <!-- Upcoming Anniversaries Section -->
-            <section class="content-section" style="margin-top: 40px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="font-size: 1.25rem;">다가오는 기념일 & 일정 📅</h2>
+            <section class="content-section section-upcoming">
+                <div class="section-header">
+                    <h2>다가오는 기념일 & 일정 📅</h2>
                     <a href="/calendar.html" class="subtle-link">캘린더 보기 ></a>
                 </div>
                 <div id="upcoming-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
@@ -137,15 +137,7 @@
                 
                 upcomingData.forEach(item => {
                     const card = document.createElement('div');
-                    card.style.cssText = `
-                        background: #fff;
-                        padding: 16px;
-                        border-radius: 16px;
-                        border: 1px solid var(--color-border-light);
-                        display: flex;
-                        flex-direction: column;
-                        gap: 8px;
-                    `;
+                    card.className = 'upcoming-card';
                     
                     const dateObj = new Date(item.date);
                     const formattedDate = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
