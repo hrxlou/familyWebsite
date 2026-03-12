@@ -10,35 +10,43 @@
 <body>
     <header class="toss-header">
         <div class="header-inner">
-            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
             <nav id="nav-user-section" class="nav-right"></nav>
         </div>
     </header>
 
-    <div class="page-content-wrapper" style="max-width: 600px;">
+    <div class="page-content-wrapper">
         <main class="toss-main">
+            <div style="margin-bottom: 32px;">
+                <h2 style="font-size: 1.75rem; margin-bottom: 8px;">소식 알리기 📝</h2>
+                <p style="color: var(--color-text-secondary);">가족들에게 즐거운 이야기를 전해주세요.</p>
+            </div>
+
             <section class="content-section">
-                <h2 style="margin-top: 0; margin-bottom: 2rem; color: #191f28;">새 글 작성하기 ✍️</h2>
-                
-                <form id="write-form">
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="title" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333d4b;">제목</label>
-                        <input type="text" id="title" class="toss-input" placeholder="글 제목을 입력하세요." required>
-                    </div>
-                    
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="content" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333d4b;">내용</label>
-                        <textarea id="content" class="toss-input" style="height: 200px; resize: vertical;" placeholder="가족들과 나누고 싶은 이야기를 적어보세요." required></textarea>
+                <form id="write-form" onsubmit="event.preventDefault(); submitPost();">
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">제목</label>
+                        <input type="text" id="title" class="toss-input" placeholder="제목을 입력하세요" required style="font-size: 1.1rem; font-weight: 600;">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 2rem;">
-                        <label for="image" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333d4b;">사진 첨부 (선택)</label>
-                        <input type="file" id="image" accept="image/*" style="width: 100%; padding: 0.5rem 0;">
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">내용</label>
+                        <textarea id="content" class="toss-input" placeholder="어떤 이야기가 있나요?" required style="min-height: 300px; resize: vertical; line-height: 1.6;"></textarea>
                     </div>
-                    
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="button" class="toss-button" style="flex: 1; background-color: #f2f4f6; color: #4e5968;" onclick="history.back()">취소</button>
-                        <button type="submit" class="toss-button primary" style="flex: 2;" id="submit-btn">게시글 등록</button>
+
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">사진 첨부 (선택)</label>
+                        <input type="file" id="image" class="toss-input" accept="image/*" style="padding: 10px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 40px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">태그 (쉼표로 구분)</label>
+                        <input type="text" id="tags" class="toss-input" placeholder="예: 여행, 맛집, 기념일">
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="toss-button" onclick="history.back()" style="width: 120px;">취소</button>
+                        <button type="submit" id="submit-btn" class="toss-button primary" style="width: 120px;">등록하기</button>
                     </div>
                 </form>
             </section>
@@ -46,39 +54,38 @@
     </div>
 
     <script>
-        document.addEventListener('auth-checked', () => {
-            if (!currentUser) {
-                alert('로그인이 필요한 서비스입니다.');
-                window.location.href = '/login.html';
-            }
-        });
+        async function submitPost() {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const tags = document.getElementById('tags').value.trim();
+            const imageFile = document.getElementById('image').files[0];
 
-        document.getElementById('write-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            if (!title || !content) return;
+
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
             btn.textContent = '등록 중...';
 
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            const imageFile = document.getElementById('image').files[0];
-
             const formData = new FormData();
             formData.append('title', title);
             formData.append('content', content);
-            if (imageFile) {
-                formData.append('image', imageFile);
-            }
+            if (tags) formData.append('tags', tags);
+            if (imageFile) formData.append('file', imageFile);
 
             try {
-                // Post upload expects FormData, so we use api.upload
-                await api.upload('/posts', formData, 'POST');
-                alert('게시글이 성공적으로 등록되었습니다.');
+                await api.upload('/posts', formData);
                 window.location.href = '/board.html';
             } catch (error) {
                 alert(`등록 실패: ${error.message}`);
                 btn.disabled = false;
-                btn.textContent = '게시글 등록';
+                btn.textContent = '등록하기';
+            }
+        }
+
+        document.addEventListener('auth-checked', () => {
+            if (!currentUser) {
+                alert('로그인이 필요한 서비스입니다.');
+                window.location.href = '/login.html';
             }
         });
     </script>

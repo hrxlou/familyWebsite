@@ -7,46 +7,54 @@
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
     <style>
-        .login-link { text-align: center; margin-top: 1.5rem; }
+        .auth-wrapper { max-width: 440px; margin: 60px auto; text-align: center; }
+        .auth-card { background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); border: 1px solid var(--color-border-light); }
     </style>
 </head>
 <body>
-    <div class="page-content-wrapper" style="max-width: 400px; margin-top: 5rem;">
-        <main class="toss-main">
-            <section class="content-section">
-                <h2 style="text-align: center;">아이디 찾기</h2>
-                <p style="text-align: center; color: #4e5968; margin-bottom: 2rem;">가입 시 등록하신 닉네임을 입력해 주세요.</p>
-                <form id="find-id-form">
-                    <div style="margin-bottom: 1.5rem;">
-                        <input type="text" id="nickname" class="toss-input" placeholder="닉네임 (예: 아빠, 엄마)" required>
-                    </div>
-                    <button type="submit" class="toss-button primary full-width">아이디 찾기</button>
-                </form>
-                
-                <div id="result-area" style="margin-top: 2rem; text-align: center; font-weight: 600;"></div>
+    <div class="page-content-wrapper">
+        <div class="auth-wrapper">
+            <h1 style="font-size: 2rem; margin-bottom: 12px; color: var(--color-primary);">👨‍👩‍👧‍👦 우리 가족</h1>
+            <p style="color: var(--color-text-secondary); margin-bottom: 32px;">가입하신 닉네임을 입력해 주세요.</p>
 
-                <div class="login-link">
-                    <a href="/login.html" class="subtle-link">로그인 화면으로 돌아가기</a>
+            <div class="auth-card">
+                <form onsubmit="event.preventDefault(); handleFindId();">
+                    <div style="text-align: left; margin-bottom: 32px;">
+                        <label style="font-weight: 700; margin-bottom: 8px; display: block; font-size: 0.9rem;">가입 닉네임</label>
+                        <input type="text" id="nickname" class="toss-input" placeholder="예: 엄마, 길동이" required>
+                    </div>
+                    <button type="submit" id="submit-btn" class="toss-button primary full-width" style="height: 52px; font-size: 1.1rem;">아이디 찾기</button>
+                </form>
+
+                <div id="result" style="margin-top: 32px; display: none; padding: 20px; background: #f0f7ff; border-radius: 12px; color: var(--color-primary); font-weight: 700;"></div>
+
+                <div style="margin-top: 32px; border-top: 1px solid var(--color-border-light); padding-top: 24px;">
+                    <a href="/login.html" class="subtle-link">로그인으로 돌아가기</a>
                 </div>
-            </section>
-        </main>
+            </div>
+        </div>
     </div>
 
     <script>
-        document.getElementById('find-id-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nickname = document.getElementById('nickname').value;
-            const resultArea = document.getElementById('result-area');
-            
+        async function handleFindId() {
+            const nickname = document.getElementById('nickname').value.trim();
+            if (!nickname) return;
+
+            const btn = document.getElementById('submit-btn');
+            const resultEl = document.getElementById('result');
+            btn.disabled = true;
+            resultEl.style.display = 'none';
+
             try {
                 const data = await api.post('/find_id', { nickname });
-                resultArea.innerHTML = `<p style="color: #3182f6;">찾은 아이디: ${data.usernames.join(', ')}</p>`;
+                resultEl.textContent = `찾으시는 아이디는 [ ${data.username} ] 입니다.`;
+                resultEl.style.display = 'block';
             } catch (error) {
-                resultArea.innerHTML = `<p style="color: red;">${error.message}</p>`;
+                alert(`아이디 찾기 실패: ${error.message}`);
+            } finally {
+                btn.disabled = false;
             }
-        });
+        }
     </script>
-    <script src="chatbot.js"></script>
-    <script src="shared.js"></script>
 </body>
 </html>

@@ -2,16 +2,10 @@ let currentUser = null;
 
 async function checkLoginStatus() {
     try {
-<<<<<<< HEAD
         const data = await api.get('/check_session');
         currentUser = data;
     } catch (error) {
-=======
-        const response = await fetch('/api/check_session', { credentials: 'include' });
-        currentUser = response.ok ? await response.json() : null;
-    } catch (error) {
         console.error('세션 확인 중 오류:', error);
->>>>>>> 9554cf59aa61a0160fb8d748f8d294f10aa7f261
         currentUser = null;
     } finally {
         updateHeader(!!currentUser, currentUser ? currentUser.nickname : '');
@@ -24,28 +18,23 @@ function updateHeader(isLoggedIn, nickname = '') {
     if (!navUserSection) return;
 
     if (isLoggedIn) {
-<<<<<<< HEAD
-=======
-        // [수정] 새로운 CSS 클래스를 사용하는 간결한 구조로 변경
->>>>>>> 9554cf59aa61a0160fb8d748f8d294f10aa7f261
         navUserSection.innerHTML = `
-            <div class="header-user-info">
-                <a href="/profile.html" class="post-author-link">프로필</a>
-                <span class="nav-welcome-msg">환영합니다, ${nickname}님</span>
-                <button id="logout-btn" class="toss-button">로그아웃</button>
+            <div class="header-user-info" style="display: flex; align-items: center; gap: 16px;">
+                <span style="font-size: 0.9rem; color: var(--color-text-secondary);">반가워요, <strong>${nickname}</strong>님</span>
+                <a href="/profile.html" class="subtle-link" style="font-weight: 600;">프로필</a>
+                <button id="logout-btn" class="toss-button" style="padding: 6px 12px; font-size: 0.85rem; background-color: var(--color-border-medium);">로그아웃</button>
             </div>
         `;
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
     } else {
         navUserSection.innerHTML = `
-            <a href="/login.html" class="toss-button" style="background-color: #f2f4f6; color: #4e5968;">로그인</a>
-            <a href="/signup.html" class="toss-button primary">회원가입</a>
+            <a href="/login.html" class="subtle-link" style="margin-right: 12px; font-weight: 600;">로그인</a>
+            <a href="/signup.html" class="toss-button primary" style="padding: 8px 16px; font-size: 0.9rem;">시작하기</a>
         `;
     }
 }
 
 async function handleLogout() {
-<<<<<<< HEAD
     try {
         await api.post('/logout', {});
         alert('로그아웃 되었습니다.');
@@ -54,12 +43,6 @@ async function handleLogout() {
     } catch (error) {
         alert('로그아웃 실패: ' + error.message);
     }
-=======
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-    alert('로그아웃 되었습니다.');
-    currentUser = null;
-    window.location.href = '/';
->>>>>>> 9554cf59aa61a0160fb8d748f8d294f10aa7f261
 }
 
 document.addEventListener('DOMContentLoaded', checkLoginStatus);

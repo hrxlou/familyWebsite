@@ -1,12 +1,29 @@
-// shared.js
+// shared.js - Global Premium Effects
 document.addEventListener('DOMContentLoaded', () => {
-    // 버전 정보를 담고 있는 div 요소를 생성합니다.
+    // 1. Version Info
     const versionInfo = document.createElement('div');
     versionInfo.className = 'version-info';
-    
-    // 이 부분의 텍스트만 수정하면 모든 페이지의 버전이 한 번에 변경됩니다.
-    versionInfo.textContent = '2025-08-09 beta v1.5.2'; 
-    
-    // 생성된 요소를 body의 가장 마지막에 추가합니다.
+    versionInfo.style.cssText = 'position: fixed; bottom: 20px; right: 20px; font-size: 11px; color: var(--color-text-tertiary); opacity: 0.5; pointer-events: none; z-index: 100;';
+    versionInfo.textContent = 'FamilyWebsite Premium v2.0'; 
     document.body.appendChild(versionInfo);
+
+    // 2. Header Scroll Effect (Glassmorphism transition)
+    const header = document.querySelector('.toss-header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.style.boxShadow = 'var(--shadow-md)';
+                header.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            } else {
+                header.style.boxShadow = 'none';
+                header.style.backgroundColor = 'var(--color-bg-header)';
+            }
+        });
+    }
+
+    // 3. Active Nav Link Highlighting
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.feature-card, .logo a');
+    // Note: feature-cards are on the main page, logo is everywhere.
+    // For breadcrumb-like or simple active states if we had a top nav.
 });

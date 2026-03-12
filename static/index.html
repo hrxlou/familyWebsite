@@ -3,91 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 가족 메인</title>
+    <title>👨‍👩‍👧‍👦 우리 가족 - 메인</title>
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
-    <style>
-        .hero-banner {
-            background-color: #f2f4f6;
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .hero-banner h1 {
-            font-size: 2rem;
-            color: #191f28;
-            margin-bottom: 1rem;
-        }
-        .hero-banner p {
-            color: #4e5968;
-            font-size: 1.1rem;
-        }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .feature-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: block;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-        .feature-card h3 {
-            margin-top: 1rem;
-            font-size: 1.3rem;
-            color: #3182f6;
-        }
-        .feature-icon {
-            font-size: 3rem;
-        }
-    </style>
 </head>
 <body>
     <header class="toss-header">
         <div class="header-inner">
-            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
             <nav id="nav-user-section" class="nav-right"></nav>
         </div>
     </header>
 
     <div class="page-content-wrapper">
         <main class="toss-main">
+            <!-- Hero Section -->
             <section class="hero-banner">
                 <h1>우리 가족만의 소중한 공간 🏡</h1>
                 <p>가족과 함께 일상을 공유하고, 추억을 사진으로 남겨보세요.</p>
             </section>
 
+            <!-- Feature Quick Links -->
             <section class="feature-grid">
                 <a href="/board.html" class="feature-card">
-                    <div class="feature-icon">📝</div>
+                    <span class="feature-icon">📝</span>
                     <h3>가족 게시판</h3>
-                    <p style="color: #6b7684; margin-top: 0.5rem;">서로의 소식을 전하고 투표, 토론을 해보세요.</p>
+                    <p>서로의 소식을 전하고 투표, 토론을 해보세요.</p>
                 </a>
                 <a href="/album.html" class="feature-card">
-                    <div class="feature-icon">📸</div>
+                    <span class="feature-icon">📸</span>
                     <h3>가족 앨범</h3>
-                    <p style="color: #6b7684; margin-top: 0.5rem;">가족과 함께 찍은 사진을 올리고 공유해요.</p>
+                    <p>가족과 함께 찍은 사진을 올리고 공유해요.</p>
                 </a>
                 <a href="/calendar.html" class="feature-card">
-                    <div class="feature-icon">📅</div>
+                    <span class="feature-icon">📅</span>
                     <h3>가족 캘린더</h3>
-                    <p style="color: #6b7684; margin-top: 0.5rem;">가족 행사, 기념일, 일정을 관리하세요.</p>
+                    <p>가족 행사, 기념일, 일정을 관리하세요.</p>
                 </a>
             </section>
+
+            <!-- Dynamic Content Previews -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px;">
+                <!-- Recent Posts -->
+                <section class="content-section" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="font-size: 1.25rem;">최근 소식 📝</h2>
+                        <a href="/board.html" class="subtle-link">더보기 ></a>
+                    </div>
+                    <div id="recent-posts-list" class="post-list">
+                        <!-- JS injected -->
+                        <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                    </div>
+                </section>
+
+                <!-- Recent Photos -->
+                <section class="content-section" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="font-size: 1.25rem;">최근 앨범 📸</h2>
+                        <a href="/album.html" class="subtle-link">더보기 ></a>
+                    </div>
+                    <div id="recent-photos-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <!-- JS injected -->
+                        <p style="grid-column: span 2; color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
+    <script>
+        async function loadHomePreviews() {
+            try {
+                // Load recent posts
+                const postsData = await api.get('/posts?page=1');
+                const postsList = document.getElementById('recent-posts-list');
+                postsList.innerHTML = '';
+                postsData.posts.slice(0, 3).forEach(post => {
+                    const postItem = document.createElement('a');
+                    postItem.href = `/post.html?id=${post.id}`;
+                    postItem.className = 'post-item';
+                    postItem.style.padding = '12px 16px';
+                    postItem.innerHTML = `
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--color-text-primary);">${post.title}</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 4px;">${post.author_nickname} · 댓글 ${post.comments ? post.comments.length : 0}</div>
+                    `;
+                    postsList.appendChild(postItem);
+                });
+                if (postsData.posts.length === 0) postsList.innerHTML = '<p style="text-align:center; color:var(--color-text-tertiary);">게시글이 없습니다.</p>';
+
+                // Load recent photos
+                const photosData = await api.get('/photos');
+                const photosGrid = document.getElementById('recent-photos-grid');
+                photosGrid.innerHTML = '';
+                photosData.slice(0, 4).forEach(photo => {
+                    const img = document.createElement('div');
+                    img.style.cssText = `
+                        background-image: url('${photo.url}');
+                        background-size: cover;
+                        background-position: center;
+                        height: 120px;
+                        border-radius: 12px;
+                        box-shadow: var(--shadow-sm);
+                    `;
+                    photosGrid.appendChild(img);
+                });
+                if (photosData.length === 0) photosGrid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--color-text-tertiary);">사진이 없습니다.</p>';
+
+            } catch (error) {
+                console.error('Home preview load failed:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadHomePreviews);
+    </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
     <script src="shared.js"></script>

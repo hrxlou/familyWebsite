@@ -6,72 +6,30 @@
     <title>가족 게시판 - 우리 가족</title>
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
-    <style>
-        .board-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        .post-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .post-item {
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: box-shadow 0.2s;
-        }
-        .post-item:hover {
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-        .post-item a {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        .post-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0 0 0.5rem 0;
-            color: #191f28;
-        }
-        .post-meta {
-            font-size: 0.9rem;
-            color: #8b95a1;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-    </style>
 </head>
 <body>
     <header class="toss-header">
         <div class="header-inner">
-            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
             <nav id="nav-user-section" class="nav-right"></nav>
         </div>
     </header>
 
     <div class="page-content-wrapper">
         <main class="toss-main">
-            <section class="content-section">
-                <div class="board-header">
-                    <h2 style="margin: 0;">가족 게시판 📝</h2>
-                    <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none;">글쓰기</a>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+                <div>
+                    <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 게시판 📝</h2>
+                    <p style="color: var(--color-text-secondary);">우리 가족의 소소한 이야기를 나누어보세요.</p>
                 </div>
+                <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none;">글쓰기</a>
+            </div>
 
-                <div id="loading" style="text-align: center; color: #8b95a1; padding: 2rem;">게시글을 불러오는 중입니다...</div>
+            <section class="content-section" style="padding: 0; background: none; border: none; box-shadow: none;">
+                <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 40px; font-size: 0.95rem;">게시글을 불러오는 중입니다...</div>
+                <div id="post-list" class="post-list"></div>
                 
-                <ul class="post-list" id="post-list"></ul>
-                <div class="pagination" id="pagination"></div>
+                <div id="pagination" style="display: flex; justify-content: center; gap: 12px; margin-top: 40px;"></div>
             </section>
         </main>
     </div>
@@ -93,32 +51,36 @@
                 loadingEl.style.display = 'none';
                 
                 if (data.posts.length === 0) {
-                    listEl.innerHTML = '<div style="text-align:center; color:#8b95a1;">작성된 게시글이 없습니다.</div>';
+                    listEl.innerHTML = '<div style="text-align:center; color:var(--color-text-tertiary); padding: 60px; background: white; border-radius: 20px;">작성된 게시글이 없습니다.</div>';
                     return;
                 }
 
                 data.posts.forEach(post => {
-                    const li = document.createElement('li');
-                    li.className = 'post-item';
+                    const postCard = document.createElement('a');
+                    postCard.href = `/post.html?id=${post.id}`;
+                    postCard.className = 'post-item';
                     
                     const hasImage = post.image_url ? ' 🖼️' : '';
                     
-                    li.innerHTML = `
-                        <a href="/post.html?id=${post.id}">
-                            <h3 class="post-title">${post.title}${hasImage}</h3>
-                            <div class="post-meta">
-                                <span>작성자: ${post.author_nickname}</span> | 
-                                <span>댓글: ${post.comments ? post.comments.length : 0}</span>
+                    postCard.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <h3 style="font-size: 1.15rem; margin-bottom: 8px; color: var(--color-text-primary); font-weight: 700;">${post.title}${hasImage}</h3>
+                                <div style="display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--color-text-tertiary);">
+                                    <span style="font-weight: 600; color: var(--color-text-secondary);">${post.author_nickname}</span>
+                                    <span>·</span>
+                                    <span>댓글 ${post.comments ? post.comments.length : 0}</span>
+                                </div>
                             </div>
-                        </a>
+                            ${post.image_url ? `<img src="${post.image_url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; margin-left: 20px; border: 1px solid var(--color-border-light);">` : ''}
+                        </div>
                     `;
-                    listEl.appendChild(li);
+                    listEl.appendChild(postCard);
                 });
 
                 if (data.has_prev) {
                     const prevBtn = document.createElement('button');
                     prevBtn.className = 'toss-button';
-                    prevBtn.style.padding = '8px 16px';
                     prevBtn.textContent = '이전';
                     prevBtn.onclick = () => loadPosts(page - 1);
                     paginationEl.appendChild(prevBtn);
@@ -127,16 +89,16 @@
                 if (data.has_next) {
                     const nextBtn = document.createElement('button');
                     nextBtn.className = 'toss-button';
-                    nextBtn.style.padding = '8px 16px';
                     nextBtn.textContent = '다음';
                     nextBtn.onclick = () => loadPosts(page + 1);
                     paginationEl.appendChild(nextBtn);
                 }
                 
                 currentPage = page;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
-                loadingEl.innerHTML = `<span style="color:red;">게시글을 불러오지 못했습니다: ${error.message}</span>`;
+                loadingEl.innerHTML = `<span style="color:var(--color-red);">게시글 로딩 실패: ${error.message}</span>`;
             }
         }
 

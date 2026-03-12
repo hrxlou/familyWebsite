@@ -3,131 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로필 수정 - 우리 가족</title>
+    <title>프로필 설정 - 우리 가족</title>
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
     <style>
-        .profile-header {
-            text-align: center;
-            margin-bottom: 2rem;
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
         }
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            background-color: #f2f4f6;
-            margin: 0 auto 1rem;
-            display: block;
-            border: 2px solid #e5e8eb;
-        }
-        .radio-group {
+        .avatar-section {
             display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
         }
-        .radio-label {
+        .avatar-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--color-bg-base);
+            border: 4px solid white;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            position: relative;
+        }
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-edit-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--color-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
             cursor: pointer;
-            color: #4e5968;
+            box-shadow: var(--shadow-md);
+            border: 2px solid white;
+            transition: var(--transition-base);
+        }
+        .avatar-edit-overlay:hover {
+            transform: scale(1.1);
+            background-color: var(--color-primary-hover);
         }
     </style>
 </head>
 <body>
     <header class="toss-header">
         <div class="header-inner">
-            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
             <nav id="nav-user-section" class="nav-right"></nav>
         </div>
     </header>
 
-    <div class="page-content-wrapper" style="max-width: 500px;">
-        <main class="toss-main">
+    <div class="page-content-wrapper">
+        <main class="toss-main profile-container">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 1.75rem; margin-bottom: 8px;">내 프로필 관리 👤</h2>
+                <p style="color: var(--color-text-secondary);">개인정보와 아바타를 수정할 수 있습니다.</p>
+            </div>
+
             <section class="content-section">
-                <div class="profile-header">
-                    <h2 style="margin-top: 0; color: #191f28;">내 프로필</h2>
+                <div class="avatar-section">
+                    <div class="avatar-circle">
+                        <img id="avatar-preview" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b8c1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="아바타">
+                        <input type="file" id="avatar-file" accept="image/*" style="display: none;">
+                        <div class="avatar-edit-overlay" onclick="document.getElementById('avatar-file').click()">📷</div>
+                    </div>
+                    <p id="username-display" style="font-size: 1.1rem; font-weight: 700; color: var(--color-text-primary); margin: 0;">불러오는 중...</p>
+                    <p style="font-size: 0.9rem; color: var(--color-text-tertiary); margin-top: 4px;">가족 멤버</p>
                 </div>
 
-                <form id="profile-form">
-                    <img id="avatar-preview" class="avatar-preview" src="/uploads/default-avatar.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ccc\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'">
-                    
-                    <div class="form-group" style="margin-bottom: 2rem;">
-                        <label style="display: block; margin-bottom: 0.8rem; font-weight: 600;">프로필 사진</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="avatar_choice" value="keep" checked> 기존 사진 유지
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="avatar_choice" value="default"> 기본 아이콘으로 변경
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="avatar_choice" value="upload"> 새 사진 업로드
-                            </label>
-                        </div>
-                        <input type="file" id="avatar_file" name="avatar_file" accept="image/*" style="display: none; margin-top: 0.5rem;">
+                <form id="profile-form" onsubmit="event.preventDefault(); updateProfile();">
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">닉네임 (별명)</label>
+                        <input type="text" id="nickname" class="toss-input" placeholder="닉네임을 입력하세요" required>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="nickname" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">닉네임</label>
-                        <input type="text" id="nickname" name="nickname" class="toss-input" required>
+                    <div class="form-group" style="margin-bottom: 12px; border-top: 1px solid var(--color-border-light); padding-top: 24px;">
+                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">새 비밀번호 <span style="font-weight: 400; color: var(--color-text-tertiary); font-size: 0.85rem;">(변경 시에만 입력)</span></label>
+                        <input type="password" id="new-password" class="toss-input" placeholder="필요한 경우에만 입력하세요">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 2rem;">
-                        <label for="introduction" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">내 소개</label>
-                        <textarea id="introduction" name="introduction" class="toss-input" style="height: 100px; resize: vertical;"></textarea>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button type="submit" id="save-btn" class="toss-button primary" style="width: 200px; height: 50px; font-size: 1.1rem;">저장하기</button>
                     </div>
-
-                    <button type="submit" class="toss-button primary full-width">프로필 저장</button>
                 </form>
             </section>
         </main>
     </div>
 
     <script>
-        document.addEventListener('auth-checked', async () => {
-            if (!currentUser) {
-                alert('로그인이 필요한 서비스입니다.');
-                window.location.href = '/login.html';
-                return;
-            }
-
+        async function loadProfile() {
             try {
                 const user = await api.get(`/users/${currentUser.username}`);
+                document.getElementById('username-display').textContent = `@${user.username}`;
                 document.getElementById('nickname').value = user.nickname;
-                document.getElementById('introduction').value = user.introduction || '';
                 if (user.avatar_url) {
                     document.getElementById('avatar-preview').src = user.avatar_url;
                 }
             } catch (error) {
-                console.error('프로필 로드 실패:', error);
+                console.error('Failed to load profile:', error);
             }
-        });
+        }
 
-        const radios = document.getElementsByName('avatar_choice');
-        const fileInput = document.getElementById('avatar_file');
-        
-        radios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                fileInput.style.display = e.target.value === 'upload' ? 'block' : 'none';
-            });
-        });
+        async function updateProfile() {
+            const nickname = document.getElementById('nickname').value.trim();
+            const newPassword = document.getElementById('new-password').value.trim();
+            const avatarFile = document.getElementById('avatar-file').files[0];
 
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.textContent = '저장 중...';
+
             const formData = new FormData();
-            formData.append('nickname', document.getElementById('nickname').value);
-            formData.append('introduction', document.getElementById('introduction').value);
-            
-            const avatarChoice = document.querySelector('input[name="avatar_choice"]:checked').value;
-            formData.append('avatar_choice', avatarChoice);
-            
-            if (avatarChoice === 'upload') {
-                const file = fileInput.files[0];
-                if (file) formData.append('avatar_file', file);
-            }
+            formData.append('nickname', nickname);
+            if (newPassword) formData.append('password', newPassword);
+            if (avatarFile) formData.append('avatar', avatarFile);
 
             try {
                 await api.upload('/profile', formData, 'PUT');
@@ -135,6 +140,27 @@
                 window.location.reload();
             } catch (error) {
                 alert(`업데이트 실패: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '저장하기';
+            }
+        }
+
+        document.getElementById('avatar-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    document.getElementById('avatar-preview').src = re.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.addEventListener('auth-checked', () => {
+            if (!currentUser) {
+                window.location.href = '/login.html';
+            } else {
+                loadProfile();
             }
         });
     </script>

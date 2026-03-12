@@ -3,112 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>글 읽기 - 우리 가족</title>
+    <title>게시글 보기 - 우리 가족</title>
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
-    <style>
-        .post-detail {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-        }
-        .post-detail h2 {
-            margin-top: 0;
-            color: #191f28;
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .post-meta {
-            color: #8b95a1;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #f2f4f6;
-        }
-        .post-content {
-            color: #333d4b;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin-bottom: 2rem;
-        }
-        .post-image {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .comments-section {
-            background-color: #f9fafb;
-            padding: 1.5rem;
-            border-radius: 12px;
-        }
-        .comment-item {
-            padding: 1rem 0;
-            border-bottom: 1px solid #e5e8eb;
-        }
-        .comment-item:last-child {
-            border-bottom: none;
-        }
-        .comment-meta {
-            font-weight: 600;
-            color: #191f28;
-            margin-bottom: 0.3rem;
-        }
-        .comment-content {
-            color: #4e5968;
-            margin: 0;
-        }
-        .comment-form {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        .comment-input {
-            flex: 1;
-        }
-        .comment-submit {
-            white-space: nowrap;
-            width: auto;
-        }
-    </style>
 </head>
 <body>
     <header class="toss-header">
         <div class="header-inner">
-            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
             <nav id="nav-user-section" class="nav-right"></nav>
         </div>
     </header>
 
     <div class="page-content-wrapper">
         <main class="toss-main">
-            <div id="loading" style="text-align: center; color: #8b95a1; padding: 2rem;">게시글을 불러오는 중입니다...</div>
-            <div id="post-container" style="display: none;">
-                <article class="post-detail">
-                    <h2 id="post-title"></h2>
-                    <div class="post-meta" id="post-meta"></div>
-                    <img id="post-image" class="post-image" style="display: none;" alt="첨부 이미지">
-                    <div class="post-content" id="post-content"></div>
-                </article>
-
-                <section class="comments-section">
-                    <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.2rem;">댓글</h3>
-                    <div id="comments-list"></div>
-                    
-                    <form id="comment-form" class="comment-form" style="display: none;">
-                        <input type="text" id="comment-input" class="toss-input comment-input" placeholder="댓글을 남겨보세요." required>
-                        <button type="submit" class="toss-button primary comment-submit">등록</button>
-                    </form>
-                    <div id="login-prompt" style="text-align: center; margin-top: 1.5rem; color: #8b95a1;">
-                        댓글을 작성하려면 <a href="/login.html" class="subtle-link">로그인</a>해 주세요.
+            <article class="content-section" style="padding: var(--spacing-xl);">
+                <div id="post-header" style="margin-bottom: 32px; border-bottom: 1px solid var(--color-border-light); padding-bottom: 24px;">
+                    <h2 id="post-title" style="font-size: 2rem; margin-bottom: 16px;">게시글을 불러오는 중...</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-secondary); font-size: 0.95rem;">
+                            <span id="post-author" style="font-weight: 700; color: var(--color-text-primary);">...</span>
+                            <span>·</span>
+                            <span id="post-date">...</span>
+                        </div>
+                        <div id="post-actions" style="display: none; gap: 8px;">
+                            <button class="toss-button" onclick="deletePost()" style="color: var(--color-red); background: #fff1f2;">삭제</button>
+                        </div>
                     </div>
-                </section>
-                
-                <div style="text-align: center; margin-top: 2rem;">
-                    <button onclick="history.back()" class="toss-button" style="background-color: #f2f4f6; color: #4e5968;">목록으로 돌아가기</button>
                 </div>
-            </div>
+
+                <div id="post-content" style="font-size: 1.125rem; line-height: 1.8; color: var(--color-text-primary); min-height: 200px;"></div>
+                
+                <div id="post-image-container" style="margin-top: 32px;"></div>
+
+                <!-- Tags if any -->
+                <div id="post-tags" style="margin-top: 40px; display: flex; gap: 8px;"></div>
+            </article>
+
+            <!-- Comments Section -->
+            <section class="content-section" style="margin-top: 24px;">
+                <h3 style="font-size: 1.25rem; margin-bottom: 24px;">댓글 <span id="comment-count" style="color: var(--color-primary);">0</span></h3>
+                
+                <div id="comment-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px;"></div>
+
+                <div id="comment-form" style="display: none;">
+                    <div style="display: flex; gap: 12px;">
+                        <textarea id="comment-input" class="toss-input" placeholder="따뜻한 댓글을 남겨주세요." style="flex: 1; min-height: 80px;"></textarea>
+                        <button class="toss-button primary" onclick="submitComment()" style="height: 80px; width: 80px;">등록</button>
+                    </div>
+                </div>
+                <div id="comment-login-msg" style="text-align: center; color: var(--color-text-tertiary); padding: 20px; background: #f9fafb; border-radius: 12px;">
+                    댓글을 쓰려면 <a href="/login.html" class="subtle-link" style="color: var(--color-primary); font-weight: 600;">로그인</a>이 필요합니다.
+                </div>
+            </section>
         </main>
     </div>
 
@@ -117,29 +64,37 @@
         const postId = urlParams.get('id');
 
         async function loadPost() {
-            if (!postId) {
-                alert('잘못된 접근입니다.');
-                window.location.href = '/board.html';
-                return;
-            }
+            if (!postId) return window.location.href = '/board.html';
 
             try {
                 const post = await api.get(`/posts/${postId}`);
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('post-container').style.display = 'block';
-                
+                document.title = `${post.title} - 우리 가족`;
                 document.getElementById('post-title').textContent = post.title;
-                document.getElementById('post-meta').innerHTML = `작성자: <strong>${post.author_nickname}</strong>`;
-                document.getElementById('post-content').textContent = post.content;
+                document.getElementById('post-author').textContent = post.author_nickname;
+                document.getElementById('post-date').textContent = post.created_at || '';
+                document.getElementById('post-content').innerHTML = post.content.replace(/\n/g, '<br>');
                 
                 if (post.image_url) {
-                    const imgEl = document.getElementById('post-image');
-                    imgEl.src = post.image_url;
-                    imgEl.style.display = 'block';
+                    document.getElementById('post-image-container').innerHTML = `
+                        <img src="${post.image_url}" style="max-width: 100%; border-radius: 20px; box-shadow: var(--shadow-md);">
+                    `;
                 }
 
-                renderComments(post.comments);
+                if (post.tags) {
+                    const tagsContainer = document.getElementById('post-tags');
+                    post.tags.split(',').forEach(tag => {
+                        const span = document.createElement('span');
+                        span.style.cssText = 'padding: 4px 12px; background: #eff6ff; color: #3b82f6; border-radius: 99px; font-size: 0.85rem; font-weight: 500;';
+                        span.textContent = `#${tag.trim()}`;
+                        tagsContainer.appendChild(span);
+                    });
+                }
+
+                if (currentUser && (currentUser.username === 'admin' || currentUser.username === post.author_username)) {
+                    document.getElementById('post-actions').style.display = 'flex';
+                }
+
+                renderComments(post.comments || []);
             } catch (error) {
                 alert(`게시글을 불러올 수 없습니다: ${error.message}`);
                 window.location.href = '/board.html';
@@ -147,48 +102,58 @@
         }
 
         function renderComments(comments) {
-            const listEl = document.getElementById('comments-list');
+            const listEl = document.getElementById('comment-list');
+            const countEl = document.getElementById('comment-count');
             listEl.innerHTML = '';
-            
-            if (!comments || comments.length === 0) {
-                listEl.innerHTML = '<p style="color: #8b95a1; text-align: center;">가장 먼저 댓글을 남겨보세요!</p>';
+            countEl.textContent = comments.length;
+
+            if (comments.length === 0) {
+                listEl.innerHTML = '<p style="text-align:center; color:var(--color-text-tertiary); padding: 20px;">첫 댓글을 남겨보세요!</p>';
                 return;
             }
 
-            comments.forEach(comment => {
+            comments.forEach(c => {
                 const div = document.createElement('div');
-                div.className = 'comment-item';
+                div.style.cssText = 'padding: 16px; background: #f9fafb; border-radius: 16px; position: relative;';
                 div.innerHTML = `
-                    <div class="comment-meta">${comment.author_nickname}</div>
-                    <p class="comment-content">${comment.content}</p>
+                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; color: var(--color-text-primary);">${c.author_nickname}</div>
+                    <div style="font-size: 0.95rem; line-height: 1.5; color: var(--color-text-secondary);">${c.content.replace(/\n/g, '<br>')}</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 8px;">${c.created_at || ''}</div>
                 `;
                 listEl.appendChild(div);
             });
         }
 
-        document.getElementById('comment-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('comment-input');
-            const content = input.value.trim();
+        async function submitComment() {
+            const content = document.getElementById('comment-input').value.trim();
             if (!content) return;
 
             try {
                 await api.post(`/posts/${postId}/comments`, { content });
-                input.value = '';
-                loadPost(); // 댓글 등록 후 다시 불러오기
+                document.getElementById('comment-input').value = '';
+                loadPost();
             } catch (error) {
                 alert(`댓글 등록 실패: ${error.message}`);
             }
-        });
+        }
+
+        async function deletePost() {
+            if (!confirm('게시글을 삭제하시겠습니까?')) return;
+            try {
+                await api.delete(`/posts/${postId}`);
+                window.location.href = '/board.html';
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
+            }
+        }
 
         document.addEventListener('auth-checked', () => {
             if (currentUser) {
-                document.getElementById('comment-form').style.display = 'flex';
-                document.getElementById('login-prompt').style.display = 'none';
+                document.getElementById('comment-form').style.display = 'block';
+                document.getElementById('comment-login-msg').style.display = 'none';
             }
+            loadPost();
         });
-
-        document.addEventListener('DOMContentLoaded', loadPost);
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
