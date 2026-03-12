@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디 찾기 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <style>
+        .login-link { text-align: center; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="page-content-wrapper" style="max-width: 400px; margin-top: 5rem;">
+        <main class="toss-main">
+            <section class="content-section">
+                <h2 style="text-align: center;">아이디 찾기</h2>
+                <p style="text-align: center; color: #4e5968; margin-bottom: 2rem;">가입 시 등록하신 닉네임을 입력해 주세요.</p>
+                <form id="find-id-form">
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="text" id="nickname" class="toss-input" placeholder="닉네임 (예: 아빠, 엄마)" required>
+                    </div>
+                    <button type="submit" class="toss-button primary full-width">아이디 찾기</button>
+                </form>
+                
+                <div id="result-area" style="margin-top: 2rem; text-align: center; font-weight: 600;"></div>
+
+                <div class="login-link">
+                    <a href="/login.html" class="subtle-link">로그인 화면으로 돌아가기</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('find-id-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nickname = document.getElementById('nickname').value;
+            const resultArea = document.getElementById('result-area');
+            
+            try {
+                const data = await api.post('/find_id', { nickname });
+                resultArea.innerHTML = `<p style="color: #3182f6;">찾은 아이디: ${data.usernames.join(', ')}</p>`;
+            } catch (error) {
+                resultArea.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

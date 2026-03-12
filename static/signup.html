@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+    </style>
+    <script src="api.js"></script>
+</head>
+<body>
+    <div class="page-content-wrapper" style="max-width: 400px; margin-top: 5rem;">
+        <main class="toss-main">
+            <section class="content-section">
+                <h2 style="text-align: center;">회원가입</h2>
+                <form id="signup-form">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="username" class="toss-input" placeholder="아이디" required>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="password" id="password" class="toss-input" placeholder="비밀번호" required>
+                    </div>
+                    <div style="margin-bottom: 2rem;">
+                        <input type="text" id="nickname" class="toss-input" placeholder="닉네임 (예: 아빠, 엄마)" required>
+                    </div>
+                    <button type="submit" class="toss-button primary full-width">가입하기</button>
+                </form>
+                <div class="login-link">
+                    <a href="/login.html" class="subtle-link">이미 계정이 있으신가요? 로그인</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const nickname = document.getElementById('nickname').value;
+                
+                await api.post('/signup', { username, password, nickname });
+                alert('회원가입이 완료되었습니다. 로그인 해주세요.');
+                window.location.href = '/login.html';
+            } catch (error) {
+                alert(`회원가입 실패: ${error.message}`);
+            }
+        });
+    </script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

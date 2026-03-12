@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리 가족 메인</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <style>
+        .hero-banner {
+            background-color: #f2f4f6;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .hero-banner h1 {
+            font-size: 2rem;
+            color: #191f28;
+            margin-bottom: 1rem;
+        }
+        .hero-banner p {
+            color: #4e5968;
+            font-size: 1.1rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .feature-card h3 {
+            margin-top: 1rem;
+            font-size: 1.3rem;
+            color: #3182f6;
+        }
+        .feature-icon {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <div class="header-inner">
+            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <nav id="nav-user-section" class="nav-right"></nav>
+        </div>
+    </header>
+
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <section class="hero-banner">
+                <h1>우리 가족만의 소중한 공간 🏡</h1>
+                <p>가족과 함께 일상을 공유하고, 추억을 사진으로 남겨보세요.</p>
+            </section>
+
+            <section class="feature-grid">
+                <a href="/board.html" class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>가족 게시판</h3>
+                    <p style="color: #6b7684; margin-top: 0.5rem;">서로의 소식을 전하고 투표, 토론을 해보세요.</p>
+                </a>
+                <a href="/album.html" class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3>가족 앨범</h3>
+                    <p style="color: #6b7684; margin-top: 0.5rem;">가족과 함께 찍은 사진을 올리고 공유해요.</p>
+                </a>
+                <a href="/calendar.html" class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>가족 캘린더</h3>
+                    <p style="color: #6b7684; margin-top: 0.5rem;">가족 행사, 기념일, 일정을 관리하세요.</p>
+                </a>
+            </section>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

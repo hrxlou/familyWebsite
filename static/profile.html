@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 수정 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <style>
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #f2f4f6;
+            margin: 0 auto 1rem;
+            display: block;
+            border: 2px solid #e5e8eb;
+        }
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: #4e5968;
+        }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <div class="header-inner">
+            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <nav id="nav-user-section" class="nav-right"></nav>
+        </div>
+    </header>
+
+    <div class="page-content-wrapper" style="max-width: 500px;">
+        <main class="toss-main">
+            <section class="content-section">
+                <div class="profile-header">
+                    <h2 style="margin-top: 0; color: #191f28;">내 프로필</h2>
+                </div>
+
+                <form id="profile-form">
+                    <img id="avatar-preview" class="avatar-preview" src="/uploads/default-avatar.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ccc\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'">
+                    
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label style="display: block; margin-bottom: 0.8rem; font-weight: 600;">프로필 사진</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="avatar_choice" value="keep" checked> 기존 사진 유지
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="avatar_choice" value="default"> 기본 아이콘으로 변경
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="avatar_choice" value="upload"> 새 사진 업로드
+                            </label>
+                        </div>
+                        <input type="file" id="avatar_file" name="avatar_file" accept="image/*" style="display: none; margin-top: 0.5rem;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="nickname" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">닉네임</label>
+                        <input type="text" id="nickname" name="nickname" class="toss-input" required>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label for="introduction" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">내 소개</label>
+                        <textarea id="introduction" name="introduction" class="toss-input" style="height: 100px; resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="toss-button primary full-width">프로필 저장</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('auth-checked', async () => {
+            if (!currentUser) {
+                alert('로그인이 필요한 서비스입니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const user = await api.get(`/users/${currentUser.username}`);
+                document.getElementById('nickname').value = user.nickname;
+                document.getElementById('introduction').value = user.introduction || '';
+                if (user.avatar_url) {
+                    document.getElementById('avatar-preview').src = user.avatar_url;
+                }
+            } catch (error) {
+                console.error('프로필 로드 실패:', error);
+            }
+        });
+
+        const radios = document.getElementsByName('avatar_choice');
+        const fileInput = document.getElementById('avatar_file');
+        
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                fileInput.style.display = e.target.value === 'upload' ? 'block' : 'none';
+            });
+        });
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('nickname', document.getElementById('nickname').value);
+            formData.append('introduction', document.getElementById('introduction').value);
+            
+            const avatarChoice = document.querySelector('input[name="avatar_choice"]:checked').value;
+            formData.append('avatar_choice', avatarChoice);
+            
+            if (avatarChoice === 'upload') {
+                const file = fileInput.files[0];
+                if (file) formData.append('avatar_file', file);
+            }
+
+            try {
+                await api.upload('/profile', formData, 'PUT');
+                alert('프로필이 성공적으로 업데이트되었습니다.');
+                window.location.reload();
+            } catch (error) {
+                alert(`업데이트 실패: ${error.message}`);
+            }
+        });
+    </script>
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

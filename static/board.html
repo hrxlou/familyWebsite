@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가족 게시판 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <style>
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .post-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .post-item {
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
+        }
+        .post-item:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .post-item a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: #191f28;
+        }
+        .post-meta {
+            font-size: 0.9rem;
+            color: #8b95a1;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <div class="header-inner">
+            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <nav id="nav-user-section" class="nav-right"></nav>
+        </div>
+    </header>
+
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <section class="content-section">
+                <div class="board-header">
+                    <h2 style="margin: 0;">가족 게시판 📝</h2>
+                    <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none;">글쓰기</a>
+                </div>
+
+                <div id="loading" style="text-align: center; color: #8b95a1; padding: 2rem;">게시글을 불러오는 중입니다...</div>
+                
+                <ul class="post-list" id="post-list"></ul>
+                <div class="pagination" id="pagination"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let currentPage = 1;
+
+        async function loadPosts(page) {
+            const listEl = document.getElementById('post-list');
+            const paginationEl = document.getElementById('pagination');
+            const loadingEl = document.getElementById('loading');
+            
+            listEl.innerHTML = '';
+            paginationEl.innerHTML = '';
+            loadingEl.style.display = 'block';
+
+            try {
+                const data = await api.get(`/posts?page=${page}`);
+                loadingEl.style.display = 'none';
+                
+                if (data.posts.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; color:#8b95a1;">작성된 게시글이 없습니다.</div>';
+                    return;
+                }
+
+                data.posts.forEach(post => {
+                    const li = document.createElement('li');
+                    li.className = 'post-item';
+                    
+                    const hasImage = post.image_url ? ' 🖼️' : '';
+                    
+                    li.innerHTML = `
+                        <a href="/post.html?id=${post.id}">
+                            <h3 class="post-title">${post.title}${hasImage}</h3>
+                            <div class="post-meta">
+                                <span>작성자: ${post.author_nickname}</span> | 
+                                <span>댓글: ${post.comments ? post.comments.length : 0}</span>
+                            </div>
+                        </a>
+                    `;
+                    listEl.appendChild(li);
+                });
+
+                if (data.has_prev) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.className = 'toss-button';
+                    prevBtn.style.padding = '8px 16px';
+                    prevBtn.textContent = '이전';
+                    prevBtn.onclick = () => loadPosts(page - 1);
+                    paginationEl.appendChild(prevBtn);
+                }
+
+                if (data.has_next) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'toss-button';
+                    nextBtn.style.padding = '8px 16px';
+                    nextBtn.textContent = '다음';
+                    nextBtn.onclick = () => loadPosts(page + 1);
+                    paginationEl.appendChild(nextBtn);
+                }
+                
+                currentPage = page;
+
+            } catch (error) {
+                loadingEl.innerHTML = `<span style="color:red;">게시글을 불러오지 못했습니다: ${error.message}</span>`;
+            }
+        }
+
+        document.addEventListener('auth-checked', () => {
+            if (currentUser) {
+                document.getElementById('write-btn').style.display = 'inline-block';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => loadPosts(1));
+    </script>
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가족 캘린더 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <style>
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .calendar-header h2 { margin: 0; color: #191f28; display: flex; align-items: center; gap: 1rem; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border: 1px solid #e5e8eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+        .calendar-day-header {
+            text-align: center;
+            padding: 1rem 0;
+            font-weight: 600;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e8eb;
+            color: #4e5968;
+        }
+        .calendar-cell {
+            min-height: 100px;
+            padding: 0.5rem;
+            border-right: 1px solid #e5e8eb;
+            border-bottom: 1px solid #e5e8eb;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .calendar-cell:nth-child(7n) { border-right: none; }
+        .calendar-cell:hover { background: #f2f4f6; }
+        .calendar-cell .date-num {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .event-item {
+            font-size: 0.8rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .event-type-event { background: #e8f3ff; color: #1b64da; }
+        .event-type-anniversary { background: #fee500; color: #3d3d3d; }
+        .event-type-holiday { color: #d93d3d; font-weight: 600; }
+        .sunday { color: #d93d3d; }
+        .saturday { color: #3182f6; }
+
+        /* Modal Styles */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <header class="toss-header">
+        <div class="header-inner">
+            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">👨‍👩‍👧‍👦 우리 가족</a></h1>
+            <nav id="nav-user-section" class="nav-right"></nav>
+        </div>
+    </header>
+
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <section class="content-section">
+                <div class="calendar-header">
+                    <h2>
+                        <button onclick="changeMonth(-1)" class="toss-button" style="padding: 0.5rem 1rem;">&lt;</button>
+                        <span id="current-month-label">2026년 3월</span>
+                        <button onclick="changeMonth(1)" class="toss-button" style="padding: 0.5rem 1rem;">&gt;</button>
+                    </h2>
+                </div>
+
+                <div class="calendar-grid" id="calendar">
+                    <div class="calendar-day-header sunday">일</div>
+                    <div class="calendar-day-header">월</div>
+                    <div class="calendar-day-header">화</div>
+                    <div class="calendar-day-header">수</div>
+                    <div class="calendar-day-header">목</div>
+                    <div class="calendar-day-header">금</div>
+                    <div class="calendar-day-header saturday">토</div>
+                    <!-- Cells injected by JS -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">일정 추가</h3>
+            <p id="selected-date-label" style="color:#6b7684; margin-bottom: 1.5rem;"></p>
+            <form id="event-form">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; margin-bottom:0.5rem;">일정 종류</label>
+                    <select id="event-type" class="toss-input">
+                        <option value="event">일반 일정</option>
+                        <option value="anniversary">매년 반복 기념일</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block; margin-bottom:0.5rem;">일정 내용</label>
+                    <input type="text" id="event-title" class="toss-input" placeholder="내용을 입력하세요" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="toss-button" onclick="closeModal()" style="flex:1;">취소</button>
+                    <button type="submit" class="toss-button primary" style="flex:1;">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1; // 1-12
+        let selectedDateStr = '';
+
+        async function renderCalendar() {
+            document.getElementById('current-month-label').textContent = `${currentYear}년 ${currentMonth}월`;
+            
+            const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+            
+            const grid = document.getElementById('calendar');
+            // Remove old cells (keep headers)
+            Array.from(grid.children).slice(7).forEach(c => c.remove());
+
+            // Fetch events
+            let events = [];
+            try {
+                events = await api.get(`/events?year=${currentYear}&month=${currentMonth}`);
+            } catch (error) {
+                console.error('Failed to load events:', error);
+            }
+
+            // Fill blank days before first day
+            for (let i = 0; i < firstDay; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                cell.style.background = '#fafafa';
+                grid.appendChild(cell);
+            }
+
+            // Fill actual days
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isSunday = (firstDay + d - 1) % 7 === 0;
+                const isSaturday = (firstDay + d - 1) % 7 === 6;
+                const dateStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                cell.onclick = () => openModal(dateStr, currentMonth, d);
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'date-num';
+                numSpan.textContent = d;
+                if (isSunday) numSpan.classList.add('sunday');
+                if (isSaturday) numSpan.classList.add('saturday');
+                cell.appendChild(numSpan);
+
+                // Add events for this day
+                events.filter(e => e.date === dateStr).forEach(e => {
+                    const evtDiv = document.createElement('div');
+                    evtDiv.className = `event-item event-type-${e.type}`;
+                    evtDiv.textContent = e.title;
+                    cell.appendChild(evtDiv);
+                });
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+            renderCalendar();
+        }
+
+        let selectedM = 0;
+        let selectedD = 0;
+        
+        function openModal(dateStr, m, d) {
+            if (!currentUser) {
+                alert('로그인이 필요한 서비스입니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+            selectedDateStr = dateStr;
+            selectedM = m;
+            selectedD = d;
+            document.getElementById('selected-date-label').textContent = `${currentYear}년 ${m}월 ${d}일`;
+            document.getElementById('event-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('event-modal').style.display = 'none';
+            document.getElementById('event-title').value = '';
+        }
+
+        document.getElementById('event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('event-type').value;
+            const title = document.getElementById('event-title').value;
+
+            try {
+                if (type === 'event') {
+                    await api.post('/events', { date: selectedDateStr, title });
+                } else {
+                    await api.post('/anniversaries', { month: selectedM, day: selectedD, title });
+                }
+                closeModal();
+                renderCalendar();
+            } catch (error) {
+                alert(`추가 실패: ${error.message}`);
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', renderCalendar);
+    </script>
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

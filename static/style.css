@@ -1,0 +1,1127 @@
+/* --- 기본 & 폰트 스타일 --- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #a7c7ed, #cce7f8);
+    color: #333d4b;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 헤더 --- */
+.toss-header {
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 1rem 1.5rem; /* 모바일을 위해 패딩 조정 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* 모바일에서 여러 줄로 표시될 수 있도록 함 */
+    gap: 2rem;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border-radius: 0 0 20px 20px;
+    z-index: 1000;
+}
+
+.toss-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #191f28;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* --- 내비게이션 (상단 메뉴) --- */
+.toss-nav {
+    width: auto;
+}
+.toss-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+.toss-nav a {
+    text-decoration: none;
+    color: #4e5968;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    white-space: nowrap;
+    transition: color 0.2s ease-in-out;
+}
+.toss-nav a:hover {
+    color: #0070F3;
+}
+.toss-nav a.active {
+    color: #0070F3;
+    font-weight: 700;
+}
+
+/* --- 메인 콘텐츠 래퍼 --- */
+.page-content-wrapper {
+    flex-grow: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 1.5rem auto; /* 모바일 여백 조정 */
+    padding: 0 1rem; /* 모바일 여백 조정 */
+}
+
+/* --- 메인 페이지 레이아웃 --- */
+.main-layout-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.hero-banner-section {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+    padding: 2.5rem;
+    text-align: center;
+    min-height: 250px;
+}
+.hero-banner-section h2 {
+    font-size: 2rem; /* 모바일 폰트 조정 */
+    font-weight: 800;
+    color: #191f28;
+    margin-bottom: 1rem;
+}
+.hero-banner-section p {
+    font-size: 1.1rem; /* 모바일 폰트 조정 */
+    color: #4e5968;
+    margin-bottom: 2rem;
+}
+.feature-cards-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+.feature-card {
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 2rem;
+    border-radius: 20px;
+    text-decoration: none;
+    color: inherit;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 18px 50px 0 rgba(31, 38, 135, 0.3);
+}
+.feature-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #191f28;
+}
+.feature-card p {
+    margin: 0;
+    color: #4e5968;
+    font-size: 1rem;
+}
+
+/* --- 공통 콘텐츠 섹션 --- */
+.content-section {
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 1.5rem; /* 모바일 패딩 조정 */
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+}
+.content-section h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #191f28;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+/* 앨범 */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+.photo-item {
+    width: 100%;
+    padding-bottom: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 20px 0 rgba(31, 38, 135, 0.15);
+    transition: transform 0.3s ease; /* 수정: 호버 효과 추가 */
+}
+.photo-item:hover {
+    transform: scale(1.05); /* 수정: 호버 시 확대 효과 */
+}
+.photo-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.upload-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* --- 게시판 --- */
+/* board.html: 헤더 (제목과 글쓰기 버튼) */
+.board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.board-header h2 {
+    margin: 0;
+}
+
+/* board.html: 게시물 목록 전체 컨테이너 */
+.post-list {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* 각 게시물 사이의 간격 */
+}
+
+/* board.html: 각 게시물 링크 */
+.post-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border-radius: 12px; /* 링크 영역에도 적용 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.post-item-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px 0 rgba(31, 38, 135, 0.2);
+}
+
+/* board.html: 각 게시물 아이템 박스 */
+.post-item {
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    /* 썸네일과 콘텐츠를 가로로 배치 */
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+/* board.html: 게시물 썸네일 이미지 */
+.post-item-thumbnail {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f0f2f5;
+}
+.post-item-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* board.html: 텍스트 콘텐츠 영역 */
+.post-item-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100px; /* 썸네일 높이에 맞춰 최소 높이 지정 */
+}
+
+/* board.html: 게시물 제목 */
+.post-item .post-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333d4b;
+    margin: 0 0 0.5rem 0;
+}
+
+/* board.html: 게시물 내용 미리보기 */
+.post-excerpt {
+    color: #4e5968;
+    font-size: 0.95rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+    flex-grow: 1; /* 이 부분이 제목과 작성자 사이의 공간을 채움 */
+}
+
+/* board.html & post.html: 작성자 정보 */
+.post-item .post-meta {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+.post-author-link {
+    text-decoration: none;
+    color: #4e5968;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* post.html: 게시물 상세 페이지 이미지 */
+.post-detail-image {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 1rem 0 2rem 0; /* 위아래 간격 추가 */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* write.html: 글쓰기 페이지 폼 스타일 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #4e5968;
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+/* 비로그인 시 블라인드 처리된 게시물 스타일 */
+.post-item-blind {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+    color: #8b95a1;
+    cursor: pointer;
+    min-height: 124px; /* 일반 게시물 높이와 맞춤 */
+}
+.post-item-blind .icon {
+    font-size: 1.5rem;
+}
+.post-item-blind .text {
+    font-weight: 500;
+}
+
+/* --- 댓글 --- */
+.comment-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+.comment-section h4 {
+    font-size: 1rem;
+    margin: 0 0 0.8rem 0;
+}
+.comment-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+.comment-item {
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0.8rem;
+    border-radius: 8px;
+}
+.comment-author {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+}
+.comment-content {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* 캘린더 */
+.calendar-container { padding: 1.5rem; }
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.calendar-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0;
+}
+.calendar-header h2:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.calendar-header button {
+    background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #4e5968;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    transition: background-color 0.2s;
+}
+.calendar-header button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+.day-name {
+    font-weight: 600;
+    color: #0070F3;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+.calendar-day {
+    position: relative;
+    padding: 0.5rem;
+    border-radius: 8px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* ★★★ 핵심: 'flex-start'에서 'stretch'로 변경 ★★★ */
+    transition: background-color 0.2s;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+.calendar-day:not(.other-month) { cursor: pointer; }
+.calendar-day:not(.other-month):hover { background-color: rgba(255, 255, 255, 0.6); }
+.day-number { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.25rem; }
+.calendar-day.other-month { background-color: rgba(255, 255, 255, 0.15); }
+.calendar-day.other-month .day-number { color: #8b95a1; }
+.calendar-day.today {
+    background-color: rgba(0, 112, 243, 0.15);
+    border: 1px solid rgba(0, 112, 243, 0.6);
+}
+.calendar-day.today .day-number { font-weight: 700; color: #0070F3; }
+.calendar-day.sunday .day-number { color: #ff4d4f; }
+.calendar-day.saturday .day-number { color: #0070F3; }
+.event {
+    /* 텍스트 말줄임 처리를 위한 필수 속성 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* 너비 관련 속성은 제거하고, 나머지 디자인 스타일은 유지 */
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+.event-type-event { background-color: #0070F3; }
+.event-type-anniversary { background-color: #28a745; }
+.event-type-holiday { background-color: #ff4d4f; }
+.month-picker, .year-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+.picker-item {
+    padding: 1.5rem 0; text-align: center; border-radius: 12px; cursor: pointer;
+    font-weight: 600; font-size: 1.1rem; background-color: rgba(255, 255, 255, 0.4);
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+.picker-item:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+}
+.picker-item.active {
+    background-color: #0070F3; color: white;
+    box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
+}
+#daily-view h3 {
+    font-size: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+.daily-event-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem; border-radius: 8px; background-color: rgba(255, 255, 255, 0.4);
+    border-left: 5px solid #ccc;
+}
+.daily-event-item.event-type-event { border-left-color: #0070F3; }
+.daily-event-item.event-type-anniversary { border-left-color: #28a745; }
+.daily-event-item.event-type-holiday { border-left-color: #ff4d4f; }
+
+.calendar-grid-container .calendar-grid .calendar-day .event {
+    /* 텍스트 말줄임표(...)를 위한 최종 설정 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* 기타 시각 스타일 유지 */
+    font-size: 0.75rem;
+    padding: 3px 6px;
+}
+
+
+/* --- 프로필 --- */
+.profile-card {
+    text-align: center;
+}
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.5rem auto;
+    border: 3px solid rgba(0, 112, 243, 0.6);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.profile-avatar-svg {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid rgba(0, 112, 243, 0.6);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    padding: 25px;
+    box-sizing: border-box;
+    background-color: #e9ecef;
+}
+.profile-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+.profile-info p {
+    font-size: 1rem;
+    color: #4e5968;
+    margin-bottom: 1rem;
+}
+
+/* --- 공용 컴포넌트 (버튼, 입력창 등) --- */
+.toss-input,
+.toss-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+.toss-input::placeholder,
+.toss-textarea::placeholder {
+    color: #8b95a1;
+}
+.toss-input:focus,
+.toss-textarea:focus {
+    outline: none;
+    border-color: #0070F3;
+    box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.3);
+}
+.toss-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+.toss-button {
+    display: inline-block;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.toss-button.primary {
+    background-color: #0070F3;
+    color: #fff;
+}
+.toss-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(0, 112, 243, 0.3);
+}
+.toss-button.full-width {
+    width: 100%;
+}
+
+/* --- 반응형 디자인 --- */
+/* PC 화면 (1024px 이상) */
+@media screen and (min-width: 1024px) {
+    .toss-header {
+        flex-wrap: nowrap;
+        padding: 1rem 2rem;
+    }
+    .page-content-wrapper {
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+    .main-layout-area {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 2rem;
+    }
+    .hero-banner-section { flex: 1; text-align: left; }
+    .feature-cards-section { flex: 1; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .calendar-container { padding: 2rem; }
+    .calendar-header { font-size: 1.5rem; }
+    .calendar-day { min-height: 80px; padding: 0.7rem 0.3rem; font-size: 1rem; }
+    .day-name { font-size: 0.9rem; }
+    .event { font-size: 0.75rem; padding: 0.2rem 0.4rem; }
+}
+
+/* 태블릿 화면 (768px 이상) */
+@media screen and (min-width: 768px) {
+    .toss-header { flex-wrap: nowrap; }
+    .toss-nav { order: 0; width: auto; margin-top: 0; }
+    #nav-user-section { order: 0; }
+}
+
+/* 아주 작은 모바일 화면 (480px 이하) */
+@media screen and (max-width: 480px) {
+    .toss-header {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+    .toss-nav {
+        width: 100%;
+    }
+    .toss-nav ul {
+        gap: 0;
+        justify-content: space-between;
+    }
+    .toss-nav a {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+    #nav-user-section {
+        width: 100%;
+        justify-content: center;
+    }
+    .header-user-info {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+    .header-user-info .toss-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    .calendar-day {
+        min-height: 50px;
+    }
+    .event {
+        /* 매우 좁은 화면에서는 텍스트 대신 점으로 표시 */
+        font-size: 0;
+        padding: 0;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin: 4px auto 0;
+    }
+}
+
+
+/* --- 로그인/회원가입 및 추가 UI 스타일 --- */
+.subtle-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: #4e5968;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+.subtle-link:hover {
+    color: #0070F3;
+    border-bottom-color: #0070F3;
+}
+#nav-user-section {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.header-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.post-author-tag {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4e5968;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.post-author-tag:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: #0070F3;
+    transform: translateY(-1px);
+}
+/* 앨범 라이트박스(모달) 스타일 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.modal-img {
+    max-width: 100%;
+    max-height: calc(90vh - 80px);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    color: white;
+}
+.modal-uploader {
+    font-weight: 500;
+}
+.modal-close-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.modal-delete-btn {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.modal-delete-btn:hover {
+    background-color: #d9363e;
+}
+.post-item-blind {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+    color: #8b95a1;
+    cursor: pointer;
+}
+.post-item-blind .icon {
+    font-size: 1.5rem;
+}
+.post-item-blind .text {
+    font-weight: 500;
+}
+/* --- [추가] 프로필 수정 폼 스타일 --- */
+.profile-edit-form {
+    text-align: left;
+    margin-top: 2rem;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+.avatar-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.avatar-options input[type="radio"] {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+.avatar-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #e9ecef;
+}
+#avatar-upload-area {
+    margin-top: 0.5rem;
+    padding-left: 2rem; /* 라디오 버튼과 맞춤 */
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+/* --- [추가] 챗봇 스타일 --- */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    background-color: #0070F3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 112, 243, 0.4);
+    z-index: 1999;
+    transition: transform 0.2s ease;
+}
+.chatbot-toggler:hover {
+    transform: scale(1.1);
+}
+
+.chatbot-window {
+    position: fixed;
+    bottom: 7rem;
+    right: 3rem;
+    width: 350px;
+    max-width: calc(100vw - 4rem);
+    height: 500px;
+    max-height: calc(100vh - 9rem);
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 2000;
+    transform-origin: bottom right;
+    animation: scaleUp 0.3s ease-in-out;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.chat-header {
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+.chat-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scroll-behavior: smooth; /* [수정] 스크롤을 부드럽게 */
+}
+.message {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    max-width: 80%;
+    line-height: 1.5;
+    animation: slideIn 0.4s ease-out; /* [수정] 메시지 등장 애니메이션 */
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+    background-color: #0070F3;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+.message.bot {
+    background-color: white;
+    color: #333d4b;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+.message.bot a {
+    color: #0070F3;
+    font-weight: 500;
+    display: block;
+    margin-top: 0.5rem;
+}
+.message.bot ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+.message.bot li {
+    margin-top: 0.25rem;
+}
+
+.chat-input-form {
+    display: flex;
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+.chat-input-form input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+.chat-input-form input:focus {
+    outline: none;
+}
+.chat-input-form button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #0070F3;
+}
+/* --- [추가] 버전 정보 스타일 --- */
+.version-info {
+    position: fixed;
+    bottom: 1rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    color: #8b95a1; /* 옅은 회색 */
+    z-index: 1000;
+}
+
+/* --- [추가] 캘린더 일정 색상 구분 --- */
+.event.event-type-event {
+    background-color: #0070F3; /* 기존 파란색 */
+}
+.event.event-type-anniversary {
+    background-color: #28a745; /* 초록색 */
+}
+
+/* 일별 보기에서도 색상 적용 */
+.daily-event-item.event-type-anniversary {
+    border-left: 5px solid #28a745;
+}
+.daily-event-item.event-type-event {
+    border-left: 5px solid #0070F3;
+}
+
+/* --- [추가] 캘린더 UI 개선 스타일 --- */
+.event.event-type-holiday {
+    background-color: #dc3545; /* 빨간색 */
+}
+.calendar-day.sunday .day-number {
+    color: #dc3545; /* 일요일 숫자 빨간색 */
+}
+.calendar-day.saturday .day-number {
+    color: #007bff; /* 토요일 숫자 파란색 */
+}
+.calendar-header h2 {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+}
+.calendar-header h2:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* 캘린더 일별 보기 수정 */
+#daily-view h3 {
+    font-size: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+#add-event-area { margin-bottom: 2rem; }
+#add-event-area h4 { margin-bottom: 1rem; font-size: 1.1rem; }
+.event-type-options { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+.event-type-options label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+#add-event-form .input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+#add-event-form .toss-input {
+    flex-grow: 1;
+}
+#add-event-form .toss-button {
+    flex-shrink: 0;
+}
+#daily-event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.daily-event-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem; border-radius: 8px; background-color: rgba(255, 255, 255, 0.4);
+    border-left: 5px solid #ccc;
+}
+.daily-event-item.event-type-event { border-left-color: #0070F3; }
+.daily-event-item.event-type-anniversary { border-left-color: #28a745; }
+.daily-event-item.event-type-holiday { border-left-color: #ff4d4f; }
+.daily-event-item .event-title { font-weight: 500; }
+.daily-event-item .actions { display: flex; gap: 0.5rem; }
+.daily-event-item .actions button {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0,0,0,0.05);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.daily-event-item .actions button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0,0,0,0.1);
+}
+
+/* 날짜 선택 UI (월/년) */
+.date-picker {
+    animation: fadeIn 0.3s ease;
+}
+.month-picker, .year-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+.picker-item {
+    padding: 1.2rem 0;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.picker-item:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.picker-item.active {
+    background-color: #0070F3;
+    color: white;
+}
+
+/* --- [추가] 캘린더 연/월 분리 스타일 --- */
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 연도와 월 사이 간격 */
+}
+
+/* 기존 h2 스타일 대신 새로운 컨테이너 내부의 h2에 스타일 적용 */
+.date-picker-container h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.date-picker-container h2:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* 기존 calendar-header h2의 일부 스타일을 초기화합니다. */
+.calendar-header h2 {
+    margin-bottom: 0;
+    cursor: default; /* 기본 커서로 변경 */
+    padding: 0;
+}
+
+/* 월/연도 선택 화면의 헤더는 클릭 가능해야 하므로 다시 cursor를 pointer로 설정 */
+#current-year-picker,
+#year-range-display {
+    cursor: pointer;
+    padding: 0.25rem 0.75rem;
+}
