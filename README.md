@@ -21,7 +21,7 @@
 ### 1. 프로젝트 클론
 ```bash
 git clone <repository-url>
-cd myproject
+cd family-website
 ```
 
 ### 2. 가상 환경 설정 및 패키지 설치
