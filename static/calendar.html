@@ -24,8 +24,21 @@
         <main class="toss-main">
             <section class="content-section">
                 <div class="flex-between mb-40">
-                    <div class="flex-center gap-16">
-                        <h2 id="current-month-label" style="font-size: 1.75rem;">2024년 5월</h2>
+                    <div class="flex-center gap-16" style="position: relative;">
+                        <h2 id="current-month-label" style="font-size: 1.75rem; cursor: pointer; user-select: none;" onclick="toggleDatePicker()">2024년 5월 ▾</h2>
+                        <!-- Date Picker Overlay -->
+                        <div id="date-picker-overlay" class="content-section" style="display: none; position: absolute; top: 50px; left: 0; z-index: 100; min-width: 300px; padding: 24px; box-shadow: var(--shadow-lg);">
+                            <div class="flex-column gap-16">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; color: var(--color-text-tertiary); margin-bottom: 8px;">연도 선택</label>
+                                    <div id="year-selector" class="flex-center gap-8" style="flex-wrap: wrap; justify-content: flex-start;"></div>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; color: var(--color-text-tertiary); margin-bottom: 8px;">월 선택</label>
+                                    <div id="month-selector" class="flex-center gap-8" style="flex-wrap: wrap; justify-content: flex-start;"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="flex-center gap-8">
                             <button class="toss-button" onclick="changeMonth(-1)" style="padding: 8px 12px;"> < </button>
                             <button class="toss-button" onclick="changeMonth(1)" style="padding: 8px 12px;"> > </button>
@@ -89,7 +102,10 @@
         async function renderCalendar() {
             const gridEl = document.getElementById('calendar-grid');
             const labelEl = document.getElementById('current-month-label');
-            labelEl.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+            labelEl.textContent = `${currentYear}년 ${currentMonth + 1}월 ▾`;
+            
+            // 데이터 피커 닫기
+            document.getElementById('date-picker-overlay').style.display = 'none';
             
             while (gridEl.children.length > 7) gridEl.removeChild(gridEl.lastChild);
 
@@ -247,6 +263,60 @@
                 renderCalendar();
             } catch (error) {
                 alert(`삭제 실패: ${error.message}`);
+            }
+        }
+
+        // --- Date Picker Logic ---
+        function toggleDatePicker() {
+            const overlay = document.getElementById('date-picker-overlay');
+            const isHidden = overlay.style.display === 'none';
+            
+            if (isHidden) {
+                renderDatePicker();
+                overlay.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function renderDatePicker() {
+            const yearBox = document.getElementById('year-selector');
+            const monthBox = document.getElementById('month-selector');
+            
+            if (!yearBox || !monthBox) return;
+            
+            yearBox.innerHTML = '';
+            monthBox.innerHTML = '';
+
+            // 연도 선택 (현재 기준 -5 ~ +5)
+            const startYear = currentYear - 5;
+            for(let y = startYear; y <= startYear + 10; y++) {
+                const btn = document.createElement('button');
+                btn.className = `toss-button ${y === currentYear ? 'primary' : 'subtle'}`;
+                btn.style.cssText = 'padding: 6px 12px; font-size: 0.85rem; height: auto;';
+                btn.textContent = `${y}년`;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentYear = y;
+                    renderDatePicker();
+                    renderCalendar();
+                };
+                yearBox.appendChild(btn);
+            }
+
+            // 월 선택
+            for(let m = 0; m < 12; m++) {
+                const btn = document.createElement('button');
+                btn.className = `toss-button ${m === currentMonth ? 'primary' : 'subtle'}`;
+                btn.style.cssText = 'padding: 6px 12px; font-size: 0.85rem; height: auto;';
+                btn.textContent = `${m + 1}월`;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentMonth = m;
+                    renderDatePicker();
+                    renderCalendar();
+                };
+                monthBox.appendChild(btn);
             }
         }
 
