@@ -11,15 +11,13 @@
         })();
     </script>
     <title>가족 게시판 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
-
+    <link rel="stylesheet" href="style.css?v=3.0">
     <script src="api.js"></script>
     <script src="components.js" defer></script>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
-
 
     <div class="page-content-wrapper">
         <main class="toss-main">
@@ -40,13 +38,11 @@
             <section class="content-section">
                 <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 40px; font-size: 0.95rem;">게시글을 불러오는 중입니다...</div>
                 <div id="post-list" class="post-list"></div>
-                
                 <div id="pagination" class="flex-center gap-12 mt-40"></div>
             </section>
         </main>
         <div id="footer-placeholder"></div>
     </div>
-
 
     <script>
         let currentPage = 1;
@@ -60,7 +56,6 @@
             listEl.innerHTML = '';
             paginationEl.innerHTML = '';
             loadingEl.style.display = 'block';
-
             currentSearch = query;
 
             try {
@@ -72,27 +67,42 @@
                     return;
                 }
 
-
                 data.posts.forEach(post => {
                     const postCard = document.createElement('a');
                     postCard.href = `/post.html?id=${post.id}`;
                     postCard.className = 'post-item';
                     
                     const hasImage = post.image_url ? ' 🖼️' : '';
-                    
-                    postCard.innerHTML = `
-                        <div class="flex-between items-start">
-                            <div style="flex: 1;">
-                                <h3 class="post-title">${post.title}${hasImage}</h3>
-                                <div class="flex-center gap-12 font-small color-tertiary" style="justify-content: flex-start;">
-                                    <span class="author-label">${post.author_nickname}</span>
-                                    <span>·</span>
-                                    <span>댓글 ${post.comments ? post.comments.length : 0}</span>
-                                </div>
-                            </div>
-                            ${post.image_url ? `<img src="${post.image_url}" class="post-thumbnail">` : ''}
-                        </div>
-                    `;
+
+                    // Safe content rendering
+                    const outerDiv = document.createElement('div');
+                    outerDiv.className = 'flex-between items-start';
+
+                    const innerDiv = document.createElement('div');
+                    innerDiv.style.flex = '1';
+
+                    const titleH3 = document.createElement('h3');
+                    titleH3.className = 'post-title';
+                    titleH3.textContent = post.title + hasImage;
+
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = 'flex-center gap-12 font-small color-tertiary';
+                    metaDiv.style.justifyContent = 'flex-start';
+                    metaDiv.innerHTML = `<span class="author-label">${escapeHtml(post.author_nickname)}</span><span>·</span><span>댓글 ${post.comments ? post.comments.length : 0}</span><span>·</span><span>❤️ ${post.like_count || 0}</span><span>·</span><span>${timeAgo(post.created_at)}</span>`;
+
+                    innerDiv.appendChild(titleH3);
+                    innerDiv.appendChild(metaDiv);
+                    outerDiv.appendChild(innerDiv);
+
+                    if (post.image_url) {
+                        const thumb = document.createElement('img');
+                        thumb.src = post.image_url;
+                        thumb.className = 'post-thumbnail';
+                        thumb.alt = '게시글 이미지';
+                        outerDiv.appendChild(thumb);
+                    }
+
+                    postCard.appendChild(outerDiv);
                     listEl.appendChild(postCard);
                 });
 
@@ -116,7 +126,7 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
-                loadingEl.innerHTML = `<span style="color:var(--color-red);">게시글 로딩 실패: ${error.message}</span>`;
+                loadingEl.innerHTML = `<span style="color:var(--color-red);">게시글 로딩 실패: ${escapeHtml(error.message)}</span>`;
             }
         }
 
@@ -129,7 +139,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts(1);
             
-            // Search input handler with debounce
             let debounceTimer;
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', (e) => {
@@ -142,6 +151,6 @@
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
-    <script src="shared.js?v=2.4"></script>
+    <script src="shared.js?v=3.0"></script>
 </body>
 </html>

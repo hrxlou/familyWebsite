@@ -11,71 +11,12 @@
         })();
     </script>
     <title>가족 앨범 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
-
+    <link rel="stylesheet" href="style.css?v=3.0">
     <script src="api.js"></script>
     <script src="components.js" defer></script>
-    <style>
-        .photo-card {
-            background: var(--color-bg-card);
-
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-            border: 1px solid var(--color-border-light);
-        }
-        .photo-card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-        }
-        .photo-card img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            display: block;
-        }
-        .photo-card .info {
-            padding: 16px;
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-            background: var(--color-bg-card);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .delete-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border-light);
-
-            border-radius: 8px;
-            color: var(--color-red);
-            cursor: pointer;
-            padding: 6px 10px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            opacity: 0;
-            transition: var(--transition-base);
-            box-shadow: var(--shadow-sm);
-        }
-        .photo-card:hover .delete-btn {
-            opacity: 1;
-        }
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-        }
-    </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
-
 
     <div class="page-content-wrapper">
         <main class="toss-main">
@@ -92,41 +33,54 @@
 
             <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 60px;">사진을 불러오는 중입니다...</div>
             <div class="photo-grid" id="photo-grid"></div>
+            <div id="album-pagination" class="flex-center gap-12 mt-40"></div>
         </main>
         <div id="footer-placeholder"></div>
     </div>
 
-
     <script>
-        async function loadPhotos() {
+        let albumCurrentPage = 1;
+
+        async function loadPhotos(page = 1) {
             const gridEl = document.getElementById('photo-grid');
             const loadingEl = document.getElementById('loading');
+            const paginationEl = document.getElementById('album-pagination');
             gridEl.innerHTML = '';
+            paginationEl.innerHTML = '';
             loadingEl.style.display = 'block';
 
             try {
-                const photos = await api.get('/photos');
+                const data = await api.get(`/photos?page=${page}`);
                 loadingEl.style.display = 'none';
+                
+                const photos = data.photos || data;
 
-                if (photos.length === 0) {
+                if ((Array.isArray(photos) ? photos : []).length === 0) {
                     gridEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">업로드된 사진이 없습니다.</div>';
                     return;
                 }
 
-
                 photos.forEach(photo => {
                     const card = document.createElement('div');
                     card.className = 'photo-card';
-                    card.innerHTML = `
-                        <img src="${photo.url}" alt="사진">
-                        <div class="info">
-                            <span>올린이: <strong>${photo.uploader_nickname}</strong></span>
-                        </div>
-                    `;
                     
-                    card.onclick = () => {
-                        window.openLightbox(photo.url);
-                    };
+                    const img = document.createElement('img');
+                    img.src = photo.url;
+                    img.alt = '가족 사진';
+                    card.appendChild(img);
+
+                    const info = document.createElement('div');
+                    info.className = 'info';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.innerHTML = `올린이: <strong>${escapeHtml(photo.uploader_nickname)}</strong>`;
+                    const dateSpan = document.createElement('span');
+                    dateSpan.style.cssText = 'font-size: 0.8rem; color: var(--color-text-quaternary);';
+                    dateSpan.textContent = timeAgo(photo.created_at);
+                    info.appendChild(nameSpan);
+                    info.appendChild(dateSpan);
+                    card.appendChild(info);
+                    
+                    card.onclick = () => window.openLightbox(photo.url);
                     
                     if (currentUser && (currentUser.username === 'admin' || currentUser.username === photo.uploader_username)) {
                         const delBtn = document.createElement('button');
@@ -141,8 +95,26 @@
                     
                     gridEl.appendChild(card);
                 });
+
+                // Pagination
+                if (data.has_prev) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.className = 'toss-button';
+                    prevBtn.textContent = '이전';
+                    prevBtn.onclick = () => loadPhotos(page - 1);
+                    paginationEl.appendChild(prevBtn);
+                }
+                if (data.has_next) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'toss-button';
+                    nextBtn.textContent = '다음';
+                    nextBtn.onclick = () => loadPhotos(page + 1);
+                    paginationEl.appendChild(nextBtn);
+                }
+                albumCurrentPage = page;
+
             } catch (error) {
-                loadingEl.innerHTML = `<span style="color:var(--color-red);">사진 로딩 실패: ${error.message}</span>`;
+                loadingEl.innerHTML = `<span style="color:var(--color-red);">사진 로딩 실패: ${escapeHtml(error.message)}</span>`;
             }
         }
 
@@ -150,7 +122,7 @@
             if (!confirm('정말 삭제하시겠습니까?')) return;
             try {
                 await api.delete(`/photos/${id}`);
-                loadPhotos();
+                loadPhotos(albumCurrentPage);
             } catch (error) {
                 alert(`삭제 실패: ${error.message}`);
             }
@@ -171,10 +143,11 @@
                 btn.disabled = false;
                 btn.textContent = '사진 올리기';
                 e.target.value = '';
-                loadPhotos();
+                loadPhotos(1);
             } catch (error) {
                 alert(`업로드 실패: ${error.message}`);
                 document.getElementById('upload-btn').disabled = false;
+                document.getElementById('upload-btn').textContent = '사진 올리기';
             }
         });
 
@@ -182,7 +155,7 @@
             if (currentUser) {
                 document.getElementById('upload-section').style.display = 'block';
             }
-            loadPhotos();
+            loadPhotos(1);
         });
     </script>
     <script src="auth.js"></script>

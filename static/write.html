@@ -77,7 +77,7 @@
             formData.append('title', title);
             formData.append('content', content);
             if (tags) formData.append('tags', tags);
-            if (imageFile) formData.append('file', imageFile);
+            if (imageFile) formData.append('image', imageFile);
 
             try {
                 await api.upload('/posts', formData);

@@ -11,15 +11,13 @@
         })();
     </script>
     <title>게시글 보기 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
-
+    <link rel="stylesheet" href="style.css?v=3.0">
     <script src="api.js"></script>
     <script src="components.js" defer></script>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
-
 
     <div class="page-content-wrapper">
         <main class="toss-main">
@@ -33,25 +31,44 @@
                             <span id="post-date">...</span>
                         </div>
                         <div id="post-actions" class="flex-center gap-8" style="display: none;">
-                            <button class="toss-button" onclick="deletePost()" style="color: var(--color-red); background: rgba(240, 68, 82, 0.1);">삭제</button>
+                            <button class="toss-button" id="edit-post-btn" style="color: var(--color-primary); background: var(--color-primary-light);">수정</button>
+                            <button class="toss-button" id="delete-post-btn" style="color: var(--color-red); background: rgba(240, 68, 82, 0.1);">삭제</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="post-content" style="font-size: 1.125rem; line-height: 1.8; color: var(--color-text-primary); min-height: 200px;"></div>
-                
                 <div id="post-image-container" style="margin-top: 32px;"></div>
 
-                <!-- Tags if any -->
-                <div id="post-tags" style="margin-top: 40px; display: flex; gap: 8px;"></div>
+                <!-- Like Section -->
+                <div id="like-section" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-border-light);">
+                    <button class="like-button" id="like-btn">
+                        <span id="like-icon">🤍</span>
+                        <span>좋아요</span>
+                        <span id="like-count">0</span>
+                    </button>
+                </div>
             </article>
+
+            <!-- Edit Modal -->
+            <div id="edit-modal" class="modal">
+                <div class="modal-content">
+                    <h2 style="margin-bottom: 24px;">게시글 수정</h2>
+                    <div class="flex-column gap-16">
+                        <input type="text" id="edit-title" class="toss-input" placeholder="제목">
+                        <textarea id="edit-content" class="toss-input" style="min-height: 200px; resize: vertical;"></textarea>
+                        <div class="flex-center gap-12" style="justify-content: flex-end;">
+                            <button class="toss-button" onclick="closeEditModal()">취소</button>
+                            <button class="toss-button primary" onclick="saveEdit()">저장</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Comments Section -->
             <section class="content-section mt-40">
                 <h3 class="mb-24" style="font-size: 1.25rem;">댓글 <span id="comment-count" style="color: var(--color-primary);">0</span></h3>
-                
                 <div id="comment-list" class="flex-column gap-16 mb-32"></div>
-
                 <div id="comment-form" style="display: none;">
                     <div class="flex-center gap-12">
                         <textarea id="comment-input" class="toss-input" placeholder="따뜻한 댓글을 남겨주세요." style="flex: 1; min-height: 80px;"></textarea>
@@ -66,37 +83,38 @@
         <div id="footer-placeholder"></div>
     </div>
 
-
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
+        let currentPostData = null;
 
         async function loadPost() {
             if (!postId) return window.location.href = '/board.html';
 
             try {
                 const post = await api.get(`/posts/${postId}`);
+                currentPostData = post;
                 document.title = `${post.title} - 우리 가족`;
                 document.getElementById('post-title').textContent = post.title;
                 document.getElementById('post-author').textContent = post.author_nickname;
-                document.getElementById('post-date').textContent = post.created_at || '';
-                document.getElementById('post-content').innerHTML = post.content.replace(/\n/g, '<br>');
+                document.getElementById('post-date').textContent = timeAgo(post.created_at);
+                
+                // Content - escape HTML then convert newlines to br
+                const contentEl = document.getElementById('post-content');
+                contentEl.innerHTML = escapeHtml(post.content).replace(/\n/g, '<br>');
                 
                 if (post.image_url) {
-                    document.getElementById('post-image-container').innerHTML = `
-                        <img src="${post.image_url}" style="max-width: 100%; border-radius: 20px; box-shadow: var(--shadow-md);">
-                    `;
+                    const imgContainer = document.getElementById('post-image-container');
+                    const img = document.createElement('img');
+                    img.src = post.image_url;
+                    img.style.cssText = 'max-width: 100%; border-radius: 20px; box-shadow: var(--shadow-md); cursor: pointer;';
+                    img.onclick = () => window.openLightbox(post.image_url);
+                    imgContainer.innerHTML = '';
+                    imgContainer.appendChild(img);
                 }
 
-                if (post.tags) {
-                    const tagsContainer = document.getElementById('post-tags');
-                    post.tags.split(',').forEach(tag => {
-                        const span = document.createElement('span');
-                        span.className = 'tag-badge';
-                        span.textContent = `#${tag.trim()}`;
-                        tagsContainer.appendChild(span);
-                    });
-                }
+                // Like button
+                updateLikeButton(post.like_count, post.liked_by_me);
 
                 if (currentUser && (currentUser.username === 'admin' || currentUser.username === post.author_username)) {
                     document.getElementById('post-actions').style.display = 'flex';
@@ -109,6 +127,32 @@
             }
         }
 
+        function updateLikeButton(count, liked) {
+            const btn = document.getElementById('like-btn');
+            const icon = document.getElementById('like-icon');
+            const countEl = document.getElementById('like-count');
+            countEl.textContent = count;
+            icon.textContent = liked ? '❤️' : '🤍';
+            btn.className = liked ? 'like-button liked' : 'like-button';
+        }
+
+        document.getElementById('like-btn').addEventListener('click', async () => {
+            if (!currentUser) return alert('로그인이 필요합니다.');
+            try {
+                if (currentPostData.liked_by_me) {
+                    const result = await api.delete(`/posts/${postId}/like`);
+                    currentPostData.liked_by_me = false;
+                    updateLikeButton(result.like_count, false);
+                } else {
+                    const result = await api.post(`/posts/${postId}/like`, {});
+                    currentPostData.liked_by_me = true;
+                    updateLikeButton(result.like_count, true);
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
         function renderComments(comments) {
             const listEl = document.getElementById('comment-list');
             const countEl = document.getElementById('comment-count');
@@ -120,16 +164,37 @@
                 return;
             }
 
-
             comments.forEach(c => {
                 const div = document.createElement('div');
                 div.className = 'accent-card';
                 div.style.position = 'relative';
-                div.innerHTML = `
-                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; color: var(--color-text-primary);">${c.author_nickname}</div>
-                    <div style="font-size: 0.95rem; line-height: 1.5; color: var(--color-text-secondary);">${c.content.replace(/\n/g, '<br>')}</div>
-                    <div style="font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 8px;">${c.created_at || ''}</div>
-                `;
+
+                const authorEl = document.createElement('div');
+                authorEl.style.cssText = 'font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; color: var(--color-text-primary);';
+                authorEl.textContent = c.author_nickname;
+
+                const contentEl = document.createElement('div');
+                contentEl.style.cssText = 'font-size: 0.95rem; line-height: 1.5; color: var(--color-text-secondary);';
+                contentEl.innerHTML = escapeHtml(c.content).replace(/\n/g, '<br>');
+
+                const dateEl = document.createElement('div');
+                dateEl.style.cssText = 'font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 8px;';
+                dateEl.textContent = timeAgo(c.created_at);
+
+                div.appendChild(authorEl);
+                div.appendChild(contentEl);
+                div.appendChild(dateEl);
+
+                // 삭제 버튼 (본인 또는 admin)
+                if (currentUser && (currentUser.username === 'admin' || currentUser.username === c.author_username)) {
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'comment-delete-btn';
+                    delBtn.textContent = '삭제';
+                    delBtn.style.cssText = 'position: absolute; top: 12px; right: 12px;';
+                    delBtn.onclick = () => deleteComment(c.id);
+                    div.appendChild(delBtn);
+                }
+
                 listEl.appendChild(div);
             });
         }
@@ -147,7 +212,43 @@
             }
         }
 
-        async function deletePost() {
+        async function deleteComment(commentId) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+            try {
+                await api.delete(`/posts/${postId}/comments/${commentId}`);
+                loadPost();
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
+            }
+        }
+
+        // Edit functionality
+        document.getElementById('edit-post-btn').addEventListener('click', () => {
+            document.getElementById('edit-title').value = currentPostData.title;
+            document.getElementById('edit-content').value = currentPostData.content;
+            document.getElementById('edit-modal').style.display = 'flex';
+        });
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        async function saveEdit() {
+            const title = document.getElementById('edit-title').value.trim();
+            const content = document.getElementById('edit-content').value.trim();
+            if (!title || !content) return alert('제목과 내용을 모두 입력해주세요.');
+
+            try {
+                await api.put(`/posts/${postId}`, { title, content });
+                closeEditModal();
+                loadPost();
+            } catch (error) {
+                alert(`수정 실패: ${error.message}`);
+            }
+        }
+
+        // Delete post
+        document.getElementById('delete-post-btn').addEventListener('click', async () => {
             if (!confirm('게시글을 삭제하시겠습니까?')) return;
             try {
                 await api.delete(`/posts/${postId}`);
@@ -155,7 +256,11 @@
             } catch (error) {
                 alert(`삭제 실패: ${error.message}`);
             }
-        }
+        });
+
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('edit-modal')) closeEditModal();
+        };
 
         document.addEventListener('auth-checked', () => {
             if (currentUser) {

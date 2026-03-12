@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+        })();
+    </script>
+    <title>가족 투표 - 우리 가족</title>
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <script src="api.js"></script>
+    <script src="components.js" defer></script>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-content-wrapper">
+        <main class="toss-main">
+            <div class="flex-between items-end mb-40">
+                <div>
+                    <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 투표 🗳️</h2>
+                    <p style="color: var(--color-text-secondary);">가족들과 함께 재미있는 투표를 진행해보세요!</p>
+                </div>
+                <button class="toss-button primary" id="create-vote-btn" style="display: none;" onclick="openCreateModal()">투표 만들기</button>
+            </div>
+
+            <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 60px;">투표를 불러오는 중입니다...</div>
+            <div id="votes-list"></div>
+        </main>
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <!-- Create Vote Modal -->
+    <div id="create-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 24px;">새 투표 만들기 🗳️</h2>
+            <div class="flex-column gap-16">
+                <div>
+                    <label class="form-label">투표 제목</label>
+                    <input type="text" id="vote-title" class="toss-input" placeholder="예: 오늘 저녁 뭐 먹을까?">
+                </div>
+                <div id="options-container">
+                    <label class="form-label">선택지</label>
+                    <div class="flex-column gap-8" id="option-inputs">
+                        <input type="text" class="toss-input vote-option-input" placeholder="선택지 1">
+                        <input type="text" class="toss-input vote-option-input" placeholder="선택지 2">
+                    </div>
+                    <button class="toss-button mt-8" onclick="addOptionInput()" style="font-size: 0.85rem; padding: 8px 16px;">+ 선택지 추가</button>
+                </div>
+                <div class="flex-center gap-12" style="justify-content: flex-end; margin-top: 8px;">
+                    <button class="toss-button" onclick="closeCreateModal()">취소</button>
+                    <button class="toss-button primary" onclick="createVote()">만들기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadVotes() {
+            const listEl = document.getElementById('votes-list');
+            const loadingEl = document.getElementById('loading');
+
+            try {
+                const votes = await api.get('/votes');
+                loadingEl.style.display = 'none';
+                listEl.innerHTML = '';
+
+                if (votes.length === 0) {
+                    listEl.innerHTML = '<div class="empty-state">아직 투표가 없습니다. 첫 투표를 만들어보세요!</div>';
+                    return;
+                }
+
+                votes.forEach(vote => renderVoteCard(vote, listEl));
+            } catch (error) {
+                loadingEl.innerHTML = `<span style="color:var(--color-red);">투표 로딩 실패</span>`;
+            }
+        }
+
+        function renderVoteCard(vote, container) {
+            const card = document.createElement('div');
+            card.className = 'vote-card';
+            card.id = `vote-${vote.id}`;
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'flex-between mb-16';
+            
+            const titleEl = document.createElement('h3');
+            titleEl.style.cssText = 'font-size: 1.15rem; font-weight: 700;';
+            titleEl.textContent = vote.title;
+            header.appendChild(titleEl);
+
+            if (currentUser && (currentUser.username === 'admin' || currentUser.username === vote.author_username)) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'flex-center gap-8';
+
+                if (vote.is_active) {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'toss-button';
+                    closeBtn.style.cssText = 'padding: 4px 12px; font-size: 0.8rem;';
+                    closeBtn.textContent = '종료';
+                    closeBtn.onclick = () => closeVote(vote.id);
+                    actionsDiv.appendChild(closeBtn);
+                }
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'toss-button';
+                delBtn.style.cssText = 'padding: 4px 12px; font-size: 0.8rem; color: var(--color-red);';
+                delBtn.textContent = '삭제';
+                delBtn.onclick = () => deleteVote(vote.id);
+                actionsDiv.appendChild(delBtn);
+
+                header.appendChild(actionsDiv);
+            }
+
+            card.appendChild(header);
+
+            // Options
+            const optionsDiv = document.createElement('div');
+            vote.options.forEach(opt => {
+                const optEl = document.createElement('div');
+                const isSelected = vote.my_vote === opt.id;
+                const pct = vote.total_responses > 0 ? Math.round((opt.count / vote.total_responses) * 100) : 0;
+                
+                optEl.className = `vote-option ${isSelected ? 'selected' : ''} ${!vote.is_active ? 'closed' : ''}`;
+                
+                // Progress bar
+                if (vote.my_vote || !vote.is_active) {
+                    const bar = document.createElement('div');
+                    bar.className = 'vote-bar';
+                    bar.style.width = `${pct}%`;
+                    optEl.appendChild(bar);
+                }
+
+                const content = document.createElement('div');
+                content.className = 'vote-option-content';
+                
+                const textSpan = document.createElement('span');
+                textSpan.style.fontWeight = isSelected ? '700' : '500';
+                textSpan.textContent = opt.text;
+                content.appendChild(textSpan);
+
+                if (vote.my_vote || !vote.is_active) {
+                    const pctSpan = document.createElement('span');
+                    pctSpan.style.cssText = 'font-size: 0.85rem; color: var(--color-text-tertiary); font-weight: 600;';
+                    pctSpan.textContent = `${pct}% (${opt.count}명)`;
+                    content.appendChild(pctSpan);
+                }
+
+                optEl.appendChild(content);
+
+                if (vote.is_active) {
+                    optEl.onclick = () => respondToVote(vote.id, opt.id);
+                }
+
+                optionsDiv.appendChild(optEl);
+            });
+            card.appendChild(optionsDiv);
+
+            // Meta
+            const meta = document.createElement('div');
+            meta.className = 'vote-meta';
+            
+            const badge = document.createElement('span');
+            badge.className = vote.is_active ? 'badge-active' : 'badge-closed';
+            badge.textContent = vote.is_active ? '진행 중' : '종료됨';
+            meta.appendChild(badge);
+
+            const authorSpan = document.createElement('span');
+            authorSpan.textContent = `${vote.author_nickname} · ${vote.total_responses}명 참여 · ${timeAgo(vote.created_at)}`;
+            meta.appendChild(authorSpan);
+
+            card.appendChild(meta);
+            container.appendChild(card);
+        }
+
+        async function respondToVote(voteId, optionId) {
+            if (!currentUser) return alert('로그인이 필요합니다.');
+            try {
+                const updated = await api.post(`/votes/${voteId}/respond`, { option_id: optionId });
+                // Re-render this card
+                const oldCard = document.getElementById(`vote-${voteId}`);
+                const parent = oldCard.parentNode;
+                oldCard.remove();
+                const tempDiv = document.createElement('div');
+                renderVoteCard(updated, tempDiv);
+                parent.insertBefore(tempDiv.firstChild, parent.firstChild);
+                loadVotes(); // Full refresh for correct order
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function closeVote(voteId) {
+            if (!confirm('투표를 종료하시겠습니까? 종료 후에는 투표할 수 없습니다.')) return;
+            try {
+                await api.put(`/votes/${voteId}/close`, {});
+                loadVotes();
+            } catch (error) {
+                alert(`종료 실패: ${error.message}`);
+            }
+        }
+
+        async function deleteVote(voteId) {
+            if (!confirm('투표를 삭제하시겠습니까?')) return;
+            try {
+                await api.delete(`/votes/${voteId}`);
+                loadVotes();
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
+            }
+        }
+
+        // Create modal
+        function openCreateModal() {
+            document.getElementById('create-modal').style.display = 'flex';
+        }
+        function closeCreateModal() {
+            document.getElementById('create-modal').style.display = 'none';
+            document.getElementById('vote-title').value = '';
+            document.querySelectorAll('.vote-option-input').forEach(el => el.value = '');
+        }
+
+        let optionCount = 2;
+        function addOptionInput() {
+            optionCount++;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'toss-input vote-option-input';
+            input.placeholder = `선택지 ${optionCount}`;
+            document.getElementById('option-inputs').appendChild(input);
+        }
+
+        async function createVote() {
+            const title = document.getElementById('vote-title').value.trim();
+            const options = Array.from(document.querySelectorAll('.vote-option-input'))
+                .map(el => el.value.trim())
+                .filter(v => v);
+
+            if (!title) return alert('투표 제목을 입력해주세요.');
+            if (options.length < 2) return alert('최소 2개의 선택지를 입력해주세요.');
+
+            try {
+                await api.post('/votes', { title, options });
+                closeCreateModal();
+                loadVotes();
+            } catch (error) {
+                alert(`투표 생성 실패: ${error.message}`);
+            }
+        }
+
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('create-modal')) closeCreateModal();
+        };
+
+        document.addEventListener('auth-checked', () => {
+            if (currentUser) {
+                document.getElementById('create-vote-btn').style.display = 'flex';
+            }
+            loadVotes();
+        });
+    </script>
+    <script src="auth.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="shared.js"></script>
+</body>
+</html>

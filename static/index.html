@@ -11,8 +11,7 @@
         })();
     </script>
     <title>👨‍👩‍👧‍👦 우리 가족 - 메인</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
-
+    <link rel="stylesheet" href="style.css?v=3.0">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3182f6">
     <script src="api.js"></script>
@@ -21,7 +20,6 @@
 
 <body>
     <div id="header-placeholder"></div>
-
 
     <div class="page-content-wrapper">
         <main class="toss-main">
@@ -59,7 +57,6 @@
                         <a href="/board.html" class="subtle-link">더보기 ></a>
                     </div>
                     <div id="recent-posts-list" class="post-list">
-                        <!-- JS injected -->
                         <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
                     </div>
                 </section>
@@ -70,28 +67,34 @@
                         <h2>최근 앨범 📸</h2>
                         <a href="/album.html" class="subtle-link">더보기 ></a>
                     </div>
-                    <div id="recent-photos-grid">
-                        <!-- JS injected -->
+                    <div id="recent-photos-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                         <p style="grid-column: span 2; color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
                     </div>
                 </section>
             </div>
 
             <!-- Upcoming Anniversaries Section -->
-            <section class="content-section section-upcoming">
+            <section class="content-section section-upcoming mb-48">
                 <div class="section-header">
                     <h2>다가오는 기념일 & 일정 📅</h2>
                     <a href="/calendar.html" class="subtle-link">캘린더 보기 ></a>
                 </div>
                 <div id="upcoming-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
-                    <!-- JS injected -->
                     <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
                 </div>
+            </section>
+
+            <!-- Active Votes Preview -->
+            <section class="content-section" id="votes-section" style="display: none;">
+                <div class="section-header">
+                    <h2>진행 중인 투표 🗳️</h2>
+                    <a href="/vote.html" class="subtle-link">전체보기 ></a>
+                </div>
+                <div id="votes-preview"></div>
             </section>
         </main>
         <div id="footer-placeholder"></div>
     </div>
-
 
     <script>
         async function loadHomePreviews() {
@@ -105,10 +108,17 @@
                     postItem.href = `/post.html?id=${post.id}`;
                     postItem.className = 'post-item';
                     postItem.style.padding = '12px 16px';
-                    postItem.innerHTML = `
-                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--color-text-primary);">${post.title}</div>
-                        <div style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 4px;">${post.author_nickname} · 댓글 ${post.comments ? post.comments.length : 0}</div>
-                    `;
+
+                    const titleDiv = document.createElement('div');
+                    titleDiv.style.cssText = 'font-weight: 600; font-size: 0.95rem; color: var(--color-text-primary);';
+                    titleDiv.textContent = post.title;
+                    
+                    const metaDiv = document.createElement('div');
+                    metaDiv.style.cssText = 'font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 4px;';
+                    metaDiv.textContent = `${post.author_nickname} · 댓글 ${post.comments ? post.comments.length : 0} · ❤️ ${post.like_count || 0}`;
+                    
+                    postItem.appendChild(titleDiv);
+                    postItem.appendChild(metaDiv);
                     postsList.appendChild(postItem);
                 });
                 if (postsData.posts.length === 0) postsList.innerHTML = '<p style="text-align:center; color:var(--color-text-tertiary);">게시글이 없습니다.</p>';
@@ -117,10 +127,11 @@
                 const photosData = await api.get('/photos');
                 const photosGrid = document.getElementById('recent-photos-grid');
                 photosGrid.innerHTML = '';
-                photosData.slice(0, 4).forEach(photo => {
+                const photos = photosData.photos || photosData;
+                (Array.isArray(photos) ? photos : []).slice(0, 4).forEach(photo => {
                     const img = document.createElement('div');
                     img.style.cssText = `
-                        background-image: url('${photo.url}');
+                        background-image: url('${escapeHtml(photo.url)}');
                         background-size: cover;
                         background-position: center;
                         height: 120px;
@@ -129,7 +140,8 @@
                     `;
                     photosGrid.appendChild(img);
                 });
-                if (photosData.length === 0) photosGrid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--color-text-tertiary);">사진이 없습니다.</p>';
+                const photoList = Array.isArray(photos) ? photos : [];
+                if (photoList.length === 0) photosGrid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--color-text-tertiary);">사진이 없습니다.</p>';
 
                 // Load upcoming anniversaries
                 const upcomingData = await api.get('/upcoming');
@@ -149,19 +161,58 @@
                     const typeLabel = sId.startsWith('h_') ? '공휴일' : (sId.startsWith('a_') ? '기념일' : '일정');
                     const labelClass = sId.startsWith('h_') ? 'label-holiday' : (sId.startsWith('a_') ? 'label-anniv' : 'label-event');
 
-                    card.innerHTML = `
-                        <div class="flex-between">
-                            <span class="type-label ${labelClass}">${typeLabel}</span>
-                            <span class="upcoming-date">${formattedDate} (${dayName})</span>
-                        </div>
-                        <div class="upcoming-title">${typeIcon} ${item.title}</div>
-                    `;
-                    card.onclick = () => {
-                        window.location.href = `/calendar.html?date=${item.date}`;
-                    };
+                    const labelSpan = document.createElement('span');
+                    labelSpan.className = `type-label ${labelClass}`;
+                    labelSpan.textContent = typeLabel;
+
+                    const dateSpan = document.createElement('span');
+                    dateSpan.className = 'upcoming-date';
+                    dateSpan.textContent = `${formattedDate} (${dayName})`;
+
+                    const topRow = document.createElement('div');
+                    topRow.className = 'flex-between';
+                    topRow.appendChild(labelSpan);
+                    topRow.appendChild(dateSpan);
+
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'upcoming-title';
+                    titleDiv.textContent = `${typeIcon} ${item.title}`;
+
+                    card.appendChild(topRow);
+                    card.appendChild(titleDiv);
+                    card.onclick = () => { window.location.href = `/calendar.html?date=${item.date}`; };
                     upcomingList.appendChild(card);
                 });
                 if (upcomingData.length === 0) upcomingList.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--color-text-tertiary);">다가오는 일정이 없습니다.</p>';
+
+                // Load active votes
+                try {
+                    const votes = await api.get('/votes');
+                    const activeVotes = votes.filter(v => v.is_active);
+                    if (activeVotes.length > 0) {
+                        document.getElementById('votes-section').style.display = 'block';
+                        const preview = document.getElementById('votes-preview');
+                        preview.innerHTML = '';
+                        activeVotes.slice(0, 2).forEach(vote => {
+                            const card = document.createElement('a');
+                            card.href = '/vote.html';
+                            card.className = 'post-item';
+                            card.style.padding = '16px';
+                            
+                            const titleEl = document.createElement('div');
+                            titleEl.style.cssText = 'font-weight: 600; font-size: 0.95rem; color: var(--color-text-primary);';
+                            titleEl.textContent = `🗳️ ${vote.title}`;
+                            
+                            const metaEl = document.createElement('div');
+                            metaEl.style.cssText = 'font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 4px;';
+                            metaEl.textContent = `${vote.author_nickname} · ${vote.total_responses}명 참여`;
+                            
+                            card.appendChild(titleEl);
+                            card.appendChild(metaEl);
+                            preview.appendChild(card);
+                        });
+                    }
+                } catch (e) {}
 
             } catch (error) {
                 console.error('Home preview load failed:', error);
@@ -172,7 +223,7 @@
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
-    <script src="shared.js?v=2.4"></script>
+    <script src="shared.js?v=3.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

@@ -96,4 +96,32 @@ const api = {
     }
 };
 
+/**
+ * XSS 방지를 위한 HTML 이스케이프 함수
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+/**
+ * 날짜를 상대적 시간으로 변환 (예: "3분 전", "2시간 전")
+ */
+function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString('ko-KR');
+}
+
 window.api = api;
+window.escapeHtml = escapeHtml;
+window.timeAgo = timeAgo;

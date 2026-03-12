@@ -32,6 +32,7 @@ const FooterComponent = {
                         <a href="/board.html">게시판</a>
                         <a href="/album.html">앨범</a>
                         <a href="/calendar.html">캘린더</a>
+                        <a href="/vote.html">투표</a>
                     </div>
                 </div>
             </footer>
