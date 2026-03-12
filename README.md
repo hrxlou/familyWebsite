@@ -67,7 +67,7 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-브라우저에서 `http://localhost:5000`으로 접속하여 프리미엄 패밀리 서비스를 만나보세요!
+브라우저에서 `http://localhost:5000`으로 접속하여 테스트!
 
 ---
 
@@ -83,5 +83,3 @@ python app.py
 └── templates/          # (Optional) 서버 사이드 렌더링 템플릿
 ```
 
----
-*가족의 모든 소중한 순간이 더 특별해지는 곳, **FamilyWebsite Premium**입니다.*
