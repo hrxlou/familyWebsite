@@ -1,50 +1,47 @@
-# 👨‍👩‍👧‍👦 우리 가족 - 가계 웹사이트 (Family Website)
+# 👨‍👩‍👧‍👦 우리 가족 - 프리미엄 패밀리 웹사이트
 
-가족들만의 소중한 사진, 게시글, 일정을 공유하고 관리할 수 있는 Flask 기반의 패밀리 커뮤니케이션 웹사이트입니다.
+가족들만의 소중한 사진, 게시글, 그리고 일정을 공유하고 소통할 수 있는 프리미엄 웹 어플리케이션입니다. 토스(Toss) 디자인 스타일을 모티브로 하여 깔끔하고 현대적인 사용자 경험을 제공합니다.
 
 ## ✨ 주요 기능
 
--   **가족 게시판**: 일상 공유, 투표 및 댓글 기능
--   **가족 앨범**: 사진 업로드 및 공유
--   **가족 캘린더**: 일정 관리 및 기념일 알림
--   **챗봇 서비스**: 정규식 기반의 간단한 가족 안내 챗봇
--   **보안 강화**: `bcrypt`를 이용한 비밀번호 암호화 및 환경 변수(`dotenv`) 관리
+-   **🔍 게시글 검색**: 제목과 내용의 키워드로 소중한 글들을 빠르게 찾아보세요.
+-   **🌙 프리미엄 다크 모드**: 눈이 편안한 다크 모드를 지원하며, 시스템 설정에 따라 자동으로 최적화됩니다.
+-   **📸 갤러리 라이트박스**: 가족들의 사진을 큰 화면에서 고화질로 감상하세요.
+-   **📅 캘린더 일정 관리**: 날짜를 클릭하여 일정을 바로 확인하고, 손쉽게 등록 및 삭제할 수 있습니다.
+-   **🏠 다가오는 기념일 위젯**: 메인 페이지에서 앞으로 있을 가족 기념일과 일정을 한눈에 확인하세요.
+-   **📱 PWA 지원**: 홈 화면에 추가하여 앱처럼 설치하고 편리하게 접속하세요.
+-   **🤖 스마트 챗봇**: 가족 사이트 이용에 도움을 주는 똑똑한 가이드 챗봇이 탑재되어 있습니다.
 
 ## 🛠 기술 스택
 
--   **Backend**: Flask, SQLAlchemy (SQLite), Flask-Bcrypt
--   **Frontend**: Vanilla HTML/JS, Toss UI 스타일 CSS
--   **Other**: python-dotenv, Pillow
+-   **Backend**: Flask (Python)
+-   **Database**: SQLAlchemy (SQLite)
+-   **Frontend**: Vanilla HTML/CSS/JS (UI Framework 미사용)
+-   **Design Support**: CSS Variables, Glassmorphism, Responsive Web Design
 
 ## 🚀 시작하기
 
-### 1. 프로젝트 클론
-```bash
-git clone <repository-url>
-cd family-website
-```
+1.  **의존성 설치**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 2. 가상 환경 설정 및 패키지 설치
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+2.  **환경 변수 설정**:
+    -   `.env.example` 파일을 참고하여 `.env` 파일을 생성하고 관리자 비밀번호 등을 설정하세요.
 
-### 3. 환경 변수 설정
-`.env.example` 파일을 복사하여 `.env` 파일을 생성하고 필요한 값을 설정하세요.
-```bash
-cp .env.example .env
-```
-- `SECRET_KEY`: Flask 세션 보안 키
-- `ADMIN_PASSWORD`: 초기 관리자 비밀번호
-- `DATABASE_URI`: 데이터베이스 주소 (기본값: sqlite:///app.db)
+3.  **애플리케이션 실행**:
+    ```bash
+    python app.py
+    ```
+    -   기본적으로 `http://localhost:5000`에서 실행됩니다.
 
-### 4. 서버 실행
-```bash
-python app.py
-```
-서버 실행 시 초기 데이터(관리자 계정 및 샘플 데이터)가 자동으로 생성됩니다.
+## 📂 프로젝트 구조
 
-## 📝 라이선스
-MIT License
+-   `app.py`: 메인 애플리케이션 진입점
+-   `routes/`: 기능별 백엔드 라우팅 (인증, 게시판, 앨범, 캘린더 등)
+-   `static/`: 프론트엔드 정적 파일 (HTML, CSS, JS, 이미지)
+-   `models.py`: 데이터베이스 모델 정의
+-   `extensions.py`: Flask 확장 라이브러리 초기화
+
+---
+*가족의 소중한 기록을 우리 가족 웹사이트에서 시작해 보세요.*

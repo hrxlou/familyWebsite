@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+        })();
+    </script>
     <title>가족 캘린더 - 우리 가족</title>
     <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
@@ -18,7 +25,7 @@
             box-shadow: var(--shadow-sm);
         }
         .day-header {
-            background-color: #f9fafb;
+            background-color: var(--color-bg-input);
             padding: 12px;
             text-align: center;
             font-weight: 600;
@@ -26,17 +33,17 @@
             color: var(--color-text-secondary);
         }
         .day-cell {
-            background-color: white;
+            background-color: var(--color-bg-card);
             min-height: 120px;
             padding: 8px;
             transition: var(--transition-base);
             cursor: pointer;
         }
         .day-cell:hover {
-            background-color: #f7faff;
+            background-color: var(--color-primary-light);
         }
         .day-cell.today {
-            background-color: #f0f7ff;
+            background-color: var(--color-primary-light);
         }
         .day-cell.today .day-num {
             color: var(--color-primary);
@@ -50,7 +57,7 @@
         }
         .day-cell.sat .day-num { color: #3182f6; }
         .day-cell.sun .day-num { color: var(--color-red); }
-        .day-cell.other-month { opacity: 0.4; }
+        .day-cell.other-month { opacity: 0.3; }
         
         .event-tag {
             font-size: 0.75rem;
