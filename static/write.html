@@ -11,54 +11,54 @@
         })();
     </script>
     <title>글쓰기 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
     <script src="api.js"></script>
+    <script src="components.js" defer></script>
 </head>
+
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main">
-            <div style="margin-bottom: 32px;">
+            <div class="mb-32">
                 <h2 style="font-size: 1.75rem; margin-bottom: 8px;">소식 알리기 📝</h2>
                 <p style="color: var(--color-text-secondary);">가족들에게 즐거운 이야기를 전해주세요.</p>
             </div>
 
-            <section class="content-section">
+            <section class="content-section" style="padding: 40px;">
                 <form id="write-form" onsubmit="event.preventDefault(); submitPost();">
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">제목</label>
+                    <div class="form-group mb-24">
+                        <label class="form-label">제목</label>
                         <input type="text" id="title" class="toss-input" placeholder="제목을 입력하세요" required style="font-size: 1.1rem; font-weight: 600;">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">내용</label>
+                    <div class="form-group mb-24">
+                        <label class="form-label">내용</label>
                         <textarea id="content" class="toss-input" placeholder="어떤 이야기가 있나요?" required style="min-height: 300px; resize: vertical; line-height: 1.6;"></textarea>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">사진 첨부 (선택)</label>
+                    <div class="form-group mb-24">
+                        <label class="form-label">사진 첨부 (선택)</label>
                         <input type="file" id="image" class="toss-input" accept="image/*" style="padding: 10px;">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 40px;">
-                        <label style="font-weight: 700; margin-bottom: 12px; display: block;">태그 (쉼표로 구분)</label>
+                    <div class="form-group mb-40">
+                        <label class="form-label">태그 (쉼표로 구분)</label>
                         <input type="text" id="tags" class="toss-input" placeholder="예: 여행, 맛집, 기념일">
                     </div>
 
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <div class="flex-center gap-12" style="justify-content: flex-end;">
                         <button type="button" class="toss-button" onclick="history.back()" style="width: 120px;">취소</button>
                         <button type="submit" id="submit-btn" class="toss-button primary" style="width: 120px;">등록하기</button>
                     </div>
                 </form>
             </section>
         </main>
+        <div id="footer-placeholder"></div>
     </div>
+
 
     <script>
         async function submitPost() {

@@ -11,8 +11,11 @@
         })();
     </script>
     <title>프로필 설정 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
+
     <script src="api.js"></script>
+    <script src="components.js" defer></script>
+
     <style>
         .profile-container {
             max-width: 600px;
@@ -31,7 +34,8 @@
             border-radius: 50%;
             overflow: hidden;
             background-color: var(--color-bg-base);
-            border: 4px solid white;
+            border: 4px solid var(--color-border-glass);
+
             box-shadow: var(--shadow-md);
             margin-bottom: 20px;
             display: flex;
@@ -59,7 +63,8 @@
             font-size: 1.25rem;
             cursor: pointer;
             box-shadow: var(--shadow-md);
-            border: 2px solid white;
+            border: 2px solid var(--color-bg-card);
+
             transition: var(--transition-base);
         }
         .avatar-edit-overlay:hover {
@@ -69,21 +74,18 @@
     </style>
 </head>
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main profile-container">
-            <div style="text-align: center; margin-bottom: 40px;">
+            <div class="text-center mb-64">
                 <h2 style="font-size: 1.75rem; margin-bottom: 8px;">내 프로필 관리 👤</h2>
                 <p style="color: var(--color-text-secondary);">개인정보와 아바타를 수정할 수 있습니다.</p>
             </div>
 
-            <section class="content-section">
+            <section class="content-section profile-card">
+
                 <div class="avatar-section">
                     <div class="avatar-circle">
                         <img id="avatar-preview" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b8c1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="아바타">
@@ -111,7 +113,9 @@
                 </form>
             </section>
         </main>
+        <div id="footer-placeholder"></div>
     </div>
+
 
     <script>
         async function loadProfile() {

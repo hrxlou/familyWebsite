@@ -11,11 +11,14 @@
         })();
     </script>
     <title>가족 앨범 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
+
     <script src="api.js"></script>
+    <script src="components.js" defer></script>
     <style>
         .photo-card {
-            background: white;
+            background: var(--color-bg-card);
+
             border-radius: var(--radius-lg);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
@@ -47,8 +50,9 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border-light);
+
             border-radius: 8px;
             color: var(--color-red);
             cursor: pointer;
@@ -70,16 +74,12 @@
     </style>
 </head>
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+            <div class="flex-between items-end mb-48">
                 <div>
                     <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 앨범 📸</h2>
                     <p style="color: var(--color-text-secondary);">가족과 함께한 소중한 순간들을 기록하세요.</p>
@@ -93,7 +93,9 @@
             <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 60px;">사진을 불러오는 중입니다...</div>
             <div class="photo-grid" id="photo-grid"></div>
         </main>
+        <div id="footer-placeholder"></div>
     </div>
+
 
     <script>
         async function loadPhotos() {
@@ -107,9 +109,10 @@
                 loadingEl.style.display = 'none';
 
                 if (photos.length === 0) {
-                    gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--color-text-tertiary); padding: 80px; background:white; border-radius:20px;">업로드된 사진이 없습니다.</div>';
+                    gridEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">업로드된 사진이 없습니다.</div>';
                     return;
                 }
+
 
                 photos.forEach(photo => {
                     const card = document.createElement('div');

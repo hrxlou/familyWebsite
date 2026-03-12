@@ -11,121 +11,61 @@
         })();
     </script>
     <title>가족 캘린더 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
+
     <script src="api.js"></script>
-    <style>
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-            background-color: var(--color-border-light);
-            border: 1px solid var(--color-border-light);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        .day-header {
-            background-color: var(--color-bg-input);
-            padding: 12px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--color-text-secondary);
-        }
-        .day-cell {
-            background-color: var(--color-bg-card);
-            min-height: 120px;
-            padding: 8px;
-            transition: var(--transition-base);
-            cursor: pointer;
-        }
-        .day-cell:hover {
-            background-color: var(--color-primary-light);
-        }
-        .day-cell.today {
-            background-color: var(--color-primary-light);
-        }
-        .day-cell.today .day-num {
-            color: var(--color-primary);
-            font-weight: 800;
-        }
-        .day-num {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-        .day-cell.sat .day-num { color: #3182f6; }
-        .day-cell.sun .day-num { color: var(--color-red); }
-        .day-cell.other-month { opacity: 0.3; }
-        
-        .event-tag {
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            border-radius: 4px;
-            color: white;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-        }
-    </style>
+    <script src="components.js" defer></script>
 </head>
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main">
             <section class="content-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <h2 id="current-month-label" style="font-size: 1.75rem;">2024년 5월</h2>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="toss-button" onclick="changeMonth(-1)" style="padding: 8px 12px;"> < </button>
-                        <button class="toss-button" onclick="changeMonth(1)" style="padding: 8px 12px;"> > </button>
+                <div class="flex-between mb-48">
+                    <div class="flex-center gap-16">
+                        <h2 id="current-month-label" style="font-size: 1.75rem;">2024년 5월</h2>
+                        <div class="flex-center gap-8">
+                            <button class="toss-button" onclick="changeMonth(-1)" style="padding: 8px 12px;"> < </button>
+                            <button class="toss-button" onclick="changeMonth(1)" style="padding: 8px 12px;"> > </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="calendar-grid" id="calendar-grid">
-                <!-- Header days -->
-                <div class="day-header">일</div>
-                <div class="day-header">월</div>
-                <div class="day-header">화</div>
-                <div class="day-header">수</div>
-                <div class="day-header">목</div>
-                <div class="day-header">금</div>
-                <div class="day-header">토</div>
-                <!-- Day cells will be injected here -->
-            </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Header days -->
+                    <div class="day-header">일</div>
+                    <div class="day-header">월</div>
+                    <div class="day-header">화</div>
+                    <div class="day-header">수</div>
+                    <div class="day-header">목</div>
+                    <div class="day-header">금</div>
+                    <div class="day-header">토</div>
+                    <!-- Day cells will be injected here -->
                 </div>
             </section>
         </main>
     </div>
 
+
     <!-- 일정 상세 및 추가 모달 -->
     <div id="event-modal" class="modal">
-        <div class="modal-content" style="max-width: 480px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div class="modal-content">
+            <div class="flex-between mb-24">
                 <h2 id="modal-date-label" style="font-size: 1.5rem;">2024년 05월 12일</h2>
                 <button onclick="closeEventModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-tertiary);">&times;</button>
             </div>
             
-            <div id="modal-event-list" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;">
+            <div id="modal-event-list" class="flex-column gap-8 mb-24">
                 <!-- 일정 목록이 여기에 주입됨 -->
             </div>
 
-            <div style="border-top: 1px solid var(--color-border-light); padding-top: 24px;">
+            <div class="mt-24 pt-24" style="border-top: 1px solid var(--color-border-light);">
                 <h3 style="font-size: 1rem; margin-bottom: 16px;">새 일정 추가 📌</h3>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="flex-column gap-16">
                     <input type="text" id="new-event-title" class="toss-input" placeholder="일정 제목을 입력하세요">
-                    <button class="toss-button primary full-width" onclick="addEventFromModal()">추가하기</button>
+                    <button class="toss-button primary w-full" onclick="addEventFromModal()">추가하기</button>
                 </div>
             </div>
         </div>
@@ -220,7 +160,8 @@
             } else {
                 dayEvents.forEach(e => {
                     const item = document.createElement('div');
-                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f9fafb; border-radius: 12px;';
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-bg-input); border-radius: 12px;';
+
                     
                     const isAnniv = e.type === 'anniversary';
                     const icon = isAnniv ? '🎂' : '📌';

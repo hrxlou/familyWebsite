@@ -126,7 +126,13 @@ def get_upcoming():
     all_annivs = Anniversary.query.all()
     for anniv in all_annivs:
         # Check this year's occurrence
-        anniv_this_year = datetime.date(today.year, anniv.month, anniv.day)
+        try:
+            anniv_this_year = datetime.date(today.year, anniv.month, anniv.day)
+        except ValueError:
+            if anniv.month == 2 and anniv.day == 29:
+                anniv_this_year = datetime.date(today.year, 2, 28)
+            else:
+                continue
         
         # Check if it falls within the next 30 days (considering year transition)
         if today <= anniv_this_year <= thirty_days_later:
@@ -138,7 +144,14 @@ def get_upcoming():
             })
         else:
             # Check next year's occurrence (if 30 days spans across years)
-            anniv_next_year = datetime.date(today.year + 1, anniv.month, anniv.day)
+            try:
+                anniv_next_year = datetime.date(today.year + 1, anniv.month, anniv.day)
+            except ValueError:
+                if anniv.month == 2 and anniv.day == 29:
+                    anniv_next_year = datetime.date(today.year + 1, 2, 28)
+                else:
+                    continue
+
             if today <= anniv_next_year <= thirty_days_later:
                 upcoming_items.append({
                     "id": f"a_{anniv.id}",

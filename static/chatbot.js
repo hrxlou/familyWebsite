@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeBtn.addEventListener('click', () => {
         chatWindow.style.display = 'none';
-        clearChatHistory();
     });
+
 
     inputForm.addEventListener('submit', async (e) => {
         e.preventDefault();

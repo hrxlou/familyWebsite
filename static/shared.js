@@ -12,20 +12,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const versionInfo = document.createElement('div');
     versionInfo.className = 'version-info';
     versionInfo.style.cssText = 'position: fixed; bottom: 20px; right: 20px; font-size: 11px; color: var(--color-text-tertiary); opacity: 0.5; pointer-events: none; z-index: 100;';
-    versionInfo.textContent = 'FamilyWebsite Premium v2.2'; 
+    versionInfo.textContent = 'FamilyWebsite Premium v2.3'; 
     document.body.appendChild(versionInfo);
 
-    // 2. Header Scroll Effect
-    const header = document.querySelector('.toss-header');
-    if (header) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 20) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-    }
+    // 2. Header Scroll Effect (Use MutationObserver to wait for header injection if needed)
+    const initScrollEffect = () => {
+        const header = document.querySelector('.toss-header');
+        if (header) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        }
+    };
+
 
     // 3. Dark Mode Toggle
     const initThemeToggle = () => {
@@ -53,8 +56,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Initialize components after injection
+    document.addEventListener('header-rendered', () => {
+        initScrollEffect();
+        initThemeToggle();
+    });
+
+    // Fallback if already rendered
+    setTimeout(() => {
+        initScrollEffect();
+        initThemeToggle();
+    }, 500);
+
     document.addEventListener('auth-checked', initThemeToggle);
-    initThemeToggle();
+
+
 
     // 4. Global Lightbox Logic
     const lightbox = document.createElement('div');

@@ -11,29 +11,28 @@
         })();
     </script>
     <title>게시글 보기 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
+
     <script src="api.js"></script>
+    <script src="components.js" defer></script>
 </head>
+
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main">
             <article class="content-section">
                 <div id="post-header" class="section-header-border">
                     <h2 id="post-title" style="font-size: 2rem; margin-bottom: 16px;">게시글을 불러오는 중...</h2>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-secondary); font-size: 0.95rem;">
-                            <span id="post-author" style="font-weight: 700; color: var(--color-text-primary);">...</span>
+                    <div class="flex-between">
+                        <div class="flex-center gap-12 font-small color-tertiary">
+                            <span id="post-author" class="author-label" style="font-size: 0.95rem;">...</span>
                             <span>·</span>
                             <span id="post-date">...</span>
                         </div>
-                        <div id="post-actions" style="display: none; gap: 8px;">
+                        <div id="post-actions" class="flex-center gap-8" style="display: none;">
                             <button class="toss-button" onclick="deletePost()" style="color: var(--color-red); background: rgba(240, 68, 82, 0.1);">삭제</button>
                         </div>
                     </div>
@@ -48,23 +47,25 @@
             </article>
 
             <!-- Comments Section -->
-            <section class="content-section" style="margin-top: 24px;">
-                <h3 style="font-size: 1.25rem; margin-bottom: 24px;">댓글 <span id="comment-count" style="color: var(--color-primary);">0</span></h3>
+            <section class="content-section mt-48">
+                <h3 class="mb-24" style="font-size: 1.25rem;">댓글 <span id="comment-count" style="color: var(--color-primary);">0</span></h3>
                 
-                <div id="comment-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px;"></div>
+                <div id="comment-list" class="flex-column gap-16 mb-32"></div>
 
                 <div id="comment-form" style="display: none;">
-                    <div style="display: flex; gap: 12px;">
+                    <div class="flex-center gap-12">
                         <textarea id="comment-input" class="toss-input" placeholder="따뜻한 댓글을 남겨주세요." style="flex: 1; min-height: 80px;"></textarea>
                         <button class="toss-button primary" onclick="submitComment()" style="height: 80px; width: 80px;">등록</button>
                     </div>
                 </div>
-                <div id="comment-login-msg" class="accent-card" style="text-align: center;">
+                <div id="comment-login-msg" class="accent-card text-center">
                     댓글을 쓰려면 <a href="/login.html" class="subtle-link highlight">로그인</a>이 필요합니다.
                 </div>
             </section>
         </main>
+        <div id="footer-placeholder"></div>
     </div>
+
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -115,9 +116,10 @@
             countEl.textContent = comments.length;
 
             if (comments.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center; color:var(--color-text-tertiary); padding: 20px;">첫 댓글을 남겨보세요!</p>';
+                listEl.innerHTML = '<div class="empty-state" style="padding: 24px;">첫 댓글을 남겨보세요!</div>';
                 return;
             }
+
 
             comments.forEach(c => {
                 const div = document.createElement('div');

@@ -11,41 +11,42 @@
         })();
     </script>
     <title>가족 게시판 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.3">
+
     <script src="api.js"></script>
+    <script src="components.js" defer></script>
 </head>
+
 <body>
-    <header class="toss-header">
-        <div class="header-inner">
-            <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
-            <nav id="nav-user-section" class="nav-right"></nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="page-content-wrapper">
         <main class="toss-main">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+            <div class="flex-between items-end mb-48">
                 <div>
                     <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 게시판 📝</h2>
                     <p style="color: var(--color-text-secondary);">우리 가족의 소소한 이야기를 나누어보세요.</p>
                 </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <div style="position: relative; width: 240px;">
-                        <span style="position: absolute; left: 14px; top: 12px; color: var(--color-text-quaternary);">🔍</span>
-                        <input type="text" id="search-input" class="toss-input" placeholder="검색어를 입력하세요" style="padding-left: 40px; height: 44px; font-size: 0.95rem;">
+                <div class="flex-center gap-12">
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" class="toss-input search-input-pl" placeholder="검색어를 입력하세요">
                     </div>
                     <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none; height: 44px;">글쓰기</a>
                 </div>
             </div>
 
-            <section class="content-section" style="padding: 0; background: none; border: none; box-shadow: none;">
+            <section class="content-section">
                 <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 40px; font-size: 0.95rem;">게시글을 불러오는 중입니다...</div>
                 <div id="post-list" class="post-list"></div>
                 
-                <div id="pagination" style="display: flex; justify-content: center; gap: 12px; margin-top: 40px;"></div>
+                <div id="pagination" class="flex-center gap-12 mt-40"></div>
             </section>
         </main>
+        <div id="footer-placeholder"></div>
     </div>
+
 
     <script>
         let currentPage = 1;
@@ -67,9 +68,10 @@
                 loadingEl.style.display = 'none';
                 
                 if (data.posts.length === 0) {
-                    listEl.innerHTML = '<div style="text-align:center; color:var(--color-text-tertiary); padding: 60px; background: white; border-radius: 20px;">작성된 게시글이 없습니다.</div>';
+                    listEl.innerHTML = '<div class="empty-state">작성된 게시글이 없습니다.</div>';
                     return;
                 }
+
 
                 data.posts.forEach(post => {
                     const postCard = document.createElement('a');
@@ -79,16 +81,16 @@
                     const hasImage = post.image_url ? ' 🖼️' : '';
                     
                     postCard.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div class="flex-between items-start">
                             <div style="flex: 1;">
-                                <h3 style="font-size: 1.15rem; margin-bottom: 8px; color: var(--color-text-primary); font-weight: 700;">${post.title}${hasImage}</h3>
-                                <div style="display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--color-text-tertiary);">
-                                    <span style="font-weight: 600; color: var(--color-text-secondary);">${post.author_nickname}</span>
+                                <h3 class="post-title">${post.title}${hasImage}</h3>
+                                <div class="flex-center gap-12 font-small color-tertiary" style="justify-content: flex-start;">
+                                    <span class="author-label">${post.author_nickname}</span>
                                     <span>·</span>
                                     <span>댓글 ${post.comments ? post.comments.length : 0}</span>
                                 </div>
                             </div>
-                            ${post.image_url ? `<img src="${post.image_url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; margin-left: 20px; border: 1px solid var(--color-border-light);">` : ''}
+                            ${post.image_url ? `<img src="${post.image_url}" class="post-thumbnail">` : ''}
                         </div>
                     `;
                     listEl.appendChild(postCard);
@@ -140,6 +142,6 @@
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
-    <script src="shared.js"></script>
+    <script src="shared.js?v=2.3"></script>
 </body>
 </html>

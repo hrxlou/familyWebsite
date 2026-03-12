@@ -1,6 +1,7 @@
 import os
 from flask import Blueprint, request, jsonify, session, current_app
 from werkzeug.utils import secure_filename
+from sqlalchemy.orm import joinedload
 from extensions import db
 from models import Post, Comment
 from PIL import Image
@@ -14,7 +15,7 @@ def handle_posts():
         page = request.args.get('page', 1, type=int)
         search_query = request.args.get('q', '', type=str)
         
-        query = Post.query
+        query = Post.query.options(joinedload(Post.comments))
         if search_query:
             query = query.filter(
                 (Post.title.contains(search_query)) | 
@@ -79,7 +80,7 @@ def handle_posts():
 
 @board_bp.route('/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
-    post = Post.query.get(post_id)
+    post = Post.query.options(joinedload(Post.comments)).get(post_id)
     if post:
         return jsonify(post.to_dict())
     return jsonify({"error": "게시글을 찾을 수 없습니다."}), 404
