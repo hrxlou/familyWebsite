@@ -197,10 +197,32 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
 .section-header-border {
     margin-bottom: 32px;
     border-bottom: 1px solid var(--color-border-light);
     padding-bottom: 24px;
+}
+
+.post-list, #recent-photos-grid, #upcoming-list {
+    margin-top: 12px;
+}
+
+.upcoming-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upcoming-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    background-color: var(--color-primary-light) !important;
 }
 
 .album-grid {

@@ -32,7 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
         { keywords: ['이름이', '누구니', '정체', '넌누구'], responses: ['저는 우리 가족 웹사이트의 마스코트이자 가이드인 "패밀리 봇"입니다! 🤖', '가족들의 행복한 소통을 돕는 인공지능 도우미예요.'] },
 
         // 2. 가이드 및 기능 설명 (Feature Guides)
-        { keywords: ['기능', '뭐할수있어', '메뉴', '안내', '방법', '도움'], responses: ['저희 웹사이트는 **가족 게시판**, **사진 앨범**, **일정 캘린더** 세 가지 메인 기능을 제공해요.\n\n각 페이지로 이동해서 가족들의 소식을 확인해 보세요!'] },
+        { keywords: ['기능', '뭐할수있어', '메뉴', '안내', '방법', '도움', '가이드', '사용법', '!help'], responses: [`우리 가족 웹사이트는 다음과 같은 기능을 제공해요! 🚀
+\n**1. 가족 게시판 📝**
+- 소소한 일상 기록 및 사진 첨부
+- 게시글에 댓글 남기기
+- 제목이나 내용으로 게시글 검색
+\n**2. 가족 앨범 📸**
+- 가족과의 추억 사진 모아보기
+- 라이트박스(크게 보기) 감상
+\n**3. 가족 캘린더 📅**
+- 중요한 행사/생일 관리
+- 연도/월 클릭하여 날짜 점프 가능
+- 일회성/매년 반복 일정 구분 등록
+\n**4. 기타 서비스 🌙**
+- 다크 모드 (밤눈 편안!)
+- 지능형 챗봇 가이드 (지금 대화 중!)`] },
         { keywords: ['게시판', '글쓰기', '게시물', '글쓰는법'], responses: ['가족 게시판 메뉴에서 [글쓰기] 버튼을 누르면 일상을 남길 수 있어요.\n제목과 내용을 입력하고 사진도 첨부해 보세요!'] },
         { keywords: ['댓글', '반응'], responses: ['게시글 하단에 댓글을 달아 가족들과 소통할 수 있어요. 따뜻한 댓글 한마디가 큰 힘이 됩니다 ❤️'] },
         { keywords: ['앨범', '사진', '이미지', '업로드', '갤러리'], responses: ['가족 앨범에서는 사진을 올리고 한눈에 모아볼 수 있어요. 업로드된 사진을 클릭하면 크게 감상할 수 있는 라이트박스 기능도 있답니다!'] },
@@ -140,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadChatHistory() {
         const history = JSON.parse(sessionStorage.getItem(CHAT_HISTORY_KEY)) || [];
         if (history.length === 0) {
-            const initialMessage = { type: 'bot', data: { type: 'text', text: '안녕하세요! 우리 가족 웹사이트 가이드입니다. 🤖 무엇이든 물어보세요!' } };
+            const initialMessage = { type: 'bot', data: { type: 'text', text: '안녕하세요! 우리 가족 웹사이트 가이드입니다. 🤖 무엇이든 물어보세요!\n\n💡 **이런 걸 물어보실 수 있어요:**\n- "기능이 뭐야?"\n- "사진은 어떻게 올려?"\n- "오늘 식사 메뉴 추천해줘"\n- "캘린더 사용법 알려줘"' } };
             history.push(initialMessage);
             sessionStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
         }

@@ -156,6 +156,9 @@
                         </div>
                         <div class="upcoming-title">${typeIcon} ${item.title}</div>
                     `;
+                    card.onclick = () => {
+                        window.location.href = `/calendar.html?date=${item.date}`;
+                    };
                     upcomingList.appendChild(card);
                 });
                 if (upcomingData.length === 0) upcomingList.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--color-text-tertiary);">다가오는 일정이 없습니다.</p>';

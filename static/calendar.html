@@ -99,6 +99,8 @@
         let currentMonth = new Date().getMonth();
         let selectedDate = '';
 
+        let allFetchData = [];
+
         async function renderCalendar() {
             const gridEl = document.getElementById('calendar-grid');
             const labelEl = document.getElementById('current-month-label');
@@ -111,6 +113,7 @@
 
             try {
                 const events = await api.get(`/events?year=${currentYear}&month=${currentMonth + 1}`);
+                allFetchData = events;
                 
                 const firstDay = new Date(currentYear, currentMonth, 1).getDay();
                 const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -325,7 +328,26 @@
             if (event.target === modal) closeEventModal();
         };
 
-        document.addEventListener('auth-checked', renderCalendar);
+        document.addEventListener('auth-checked', async () => {
+            await renderCalendar();
+            
+            // URL 파라미터 확인 (?date=YYYY-MM-DD)
+            const params = new URLSearchParams(window.location.search);
+            const targetDate = params.get('date');
+            if (targetDate) {
+                const [y, m, d] = targetDate.split('-').map(Number);
+                if (y && m) {
+                    currentYear = y;
+                    currentMonth = m - 1;
+                    await renderCalendar();
+                    
+                    // 해당 날짜의 일정을 찾아 모달 열기
+                    const dateStr = targetDate;
+                    const dateEvents = allFetchData.filter(e => e.date === dateStr);
+                    openEventDetail(dateStr, dateEvents);
+                }
+            }
+        });
     </script>
     <script src="auth.js"></script>
     <script src="chatbot.js"></script>
