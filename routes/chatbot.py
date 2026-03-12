@@ -4,7 +4,7 @@ from models import Event, Post
 
 chatbot_bp = Blueprint('chatbot_bp', __name__)
 
-@chatbot_bp.route('/api/chatbot', methods=['POST'])
+@chatbot_bp.route('/chatbot', methods=['POST'])
 def handle_chatbot():
     data = request.get_json()
     message = data.get('message', '').lower().strip()

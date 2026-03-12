@@ -6,7 +6,7 @@ import requests
 
 calendar_bp = Blueprint('calendar_bp', __name__)
 
-@calendar_bp.route('/api/events', methods=['GET', 'POST'])
+@calendar_bp.route('/events', methods=['GET', 'POST'])
 def handle_events():
     if request.method == 'GET':
         year = request.args.get('year', type=int)
@@ -62,7 +62,7 @@ def handle_events():
         db.session.commit()
         return jsonify(new_event.to_dict()), 201
 
-@calendar_bp.route('/api/anniversaries', methods=['POST'])
+@calendar_bp.route('/anniversaries', methods=['POST'])
 def add_anniversary():
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     data = request.get_json()
@@ -76,7 +76,7 @@ def add_anniversary():
     db.session.commit()
     return jsonify(new_anniv.to_dict()), 201
 
-@calendar_bp.route('/api/anniversaries/<int:anniv_id>', methods=['PUT', 'DELETE'])
+@calendar_bp.route('/anniversaries/<int:anniv_id>', methods=['PUT', 'DELETE'])
 def handle_anniversary(anniv_id):
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     anniv = Anniversary.query.get(anniv_id)
@@ -93,7 +93,7 @@ def handle_anniversary(anniv_id):
         db.session.commit()
         return '', 204
 
-@calendar_bp.route('/api/events/<int:event_id>', methods=['PUT', 'DELETE'])
+@calendar_bp.route('/events/<int:event_id>', methods=['PUT', 'DELETE'])
 def handle_event(event_id):
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     event = Event.query.get(event_id)

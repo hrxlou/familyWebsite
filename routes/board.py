@@ -8,7 +8,7 @@ from PIL import Image
 board_bp = Blueprint('board_bp', __name__)
 POSTS_PER_PAGE = 5
 
-@board_bp.route('/api/posts', methods=['GET', 'POST'])
+@board_bp.route('/posts', methods=['GET', 'POST'])
 def handle_posts():
     if request.method == 'GET':
         page = request.args.get('page', 1, type=int)
@@ -68,14 +68,14 @@ def handle_posts():
         db.session.commit()
         return jsonify(new_post.to_dict()), 201
 
-@board_bp.route('/api/posts/<int:post_id>', methods=['GET'])
+@board_bp.route('/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
     post = Post.query.get(post_id)
     if post:
         return jsonify(post.to_dict())
     return jsonify({"error": "게시글을 찾을 수 없습니다."}), 404
 
-@board_bp.route('/api/posts/<int:post_id>/comments', methods=['POST'])
+@board_bp.route('/posts/<int:post_id>/comments', methods=['POST'])
 def handle_comments(post_id):
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     post = Post.query.get(post_id)

@@ -6,7 +6,7 @@ from models import User
 
 auth_bp = Blueprint('auth_bp', __name__)
 
-@auth_bp.route('/api/signup', methods=['POST'])
+@auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
     username, password, nickname = data.get('username'), data.get('password'), data.get('nickname')
@@ -25,7 +25,7 @@ def signup():
     db.session.commit()
     return jsonify({"success": "회원가입이 완료되었습니다."}), 201
 
-@auth_bp.route('/api/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     username, password = data.get('username'), data.get('password')
@@ -36,25 +36,25 @@ def login():
         return jsonify({"nickname": user.nickname})
     return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
 
-@auth_bp.route('/api/logout', methods=['POST'])
+@auth_bp.route('/logout', methods=['POST'])
 def logout():
     session.clear()
     return jsonify({"success": "로그아웃 되었습니다."})
 
-@auth_bp.route('/api/check_session', methods=['GET'])
+@auth_bp.route('/check_session', methods=['GET'])
 def check_session():
     if 'username' in session:
         return jsonify({"is_logged_in": True, "nickname": session['nickname'], "username": session['username']})
     return jsonify({"is_logged_in": False}), 401
 
-@auth_bp.route('/api/users/<username>', methods=['GET'])
+@auth_bp.route('/users/<username>', methods=['GET'])
 def get_user_profile(username):
     user = User.query.get(username)
     if user:
         return jsonify({"username": username, "nickname": user.nickname, "introduction": user.introduction or '', "avatar_url": user.avatar_url})
     return jsonify({"error": "사용자를 찾을 수 무 없습니다."}), 404
 
-@auth_bp.route('/api/profile', methods=['PUT'])
+@auth_bp.route('/profile', methods=['PUT'])
 def update_profile():
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     username = session['username']
@@ -83,7 +83,7 @@ def update_profile():
     db.session.commit()
     return jsonify({"success": "프로필이 성공적으로 업데이트되었습니다.", "updated_user": {"username": username, "nickname": user.nickname, "introduction": user.introduction, "avatar_url": user.avatar_url}})
 
-@auth_bp.route('/api/find_id', methods=['POST'])
+@auth_bp.route('/find_id', methods=['POST'])
 def find_id():
     data = request.get_json()
     nickname = data.get('nickname')
@@ -92,7 +92,7 @@ def find_id():
     if not users: return jsonify({"error": "해당 닉네임으로 가입된 아이디가 없습니다."}), 404
     return jsonify({"usernames": [u.username for u in users]})
 
-@auth_bp.route('/api/verify_user', methods=['POST'])
+@auth_bp.route('/verify_user', methods=['POST'])
 def verify_user():
     data = request.get_json()
     username, nickname = data.get('username'), data.get('nickname')
@@ -101,7 +101,7 @@ def verify_user():
     if not user or user.nickname != nickname: return jsonify({"error": "입력하신 아이디 또는 닉네임이 올바르지 않습니다."}), 404
     return jsonify({"success": "인증에 성공했습니다."})
 
-@auth_bp.route('/api/reset_password', methods=['POST'])
+@auth_bp.route('/reset_password', methods=['POST'])
 def reset_password():
     data = request.get_json()
     username, nickname, new_password = data.get('username'), data.get('nickname'), data.get('new_password')

@@ -6,7 +6,7 @@ from models import Photo
 
 album_bp = Blueprint('album_bp', __name__)
 
-@album_bp.route('/api/photos', methods=['GET', 'POST'])
+@album_bp.route('/photos', methods=['GET', 'POST'])
 def handle_photos():
     if request.method == 'GET':
         photos = Photo.query.order_by(Photo.id.asc()).all()
@@ -42,7 +42,7 @@ def handle_photos():
             
             return jsonify(new_photo.to_dict()), 201
 
-@album_bp.route('/api/photos/<int:photo_id>', methods=['DELETE'])
+@album_bp.route('/photos/<int:photo_id>', methods=['DELETE'])
 def delete_photo(photo_id):
     if 'username' not in session: return jsonify({"error": "로그인이 필요합니다."}), 401
     
