@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const versionInfo = document.createElement('div');
     versionInfo.className = 'version-info';
     versionInfo.style.cssText = 'position: fixed; bottom: 20px; right: 20px; font-size: 11px; color: var(--color-text-tertiary); opacity: 0.5; pointer-events: none; z-index: 100;';
-    versionInfo.textContent = 'FamilyWebsite Premium v2.3'; 
+    versionInfo.textContent = 'FamilyWebsite Premium v2.4 (Release 1.1.0)'; 
     document.body.appendChild(versionInfo);
 
     // 2. Header Scroll Effect (Use MutationObserver to wait for header injection if needed)

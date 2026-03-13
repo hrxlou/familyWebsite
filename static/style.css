@@ -1358,16 +1358,64 @@ body {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
+    .logo a {
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+
+    .user-greeting {
+        display: none !important;
+    }
+
+    .header-inner {
+        padding: 0 8px;
+    }
+
+    .nav-right {
+        gap: 6px;
+    }
+
+    .header-user-info {
+        gap: 8px;
+    }
+
+    .logout-btn {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+        height: 32px !important;
+    }
+
+    .theme-toggle-btn, #notif-btn {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 1rem !important;
+        margin-right: 2px !important;
+    }
+
+    .page-content-wrapper {
+        padding: var(--spacing-lg) 12px;
+    }
+
+    .content-section {
+        padding: 24px 16px;
+    }
+
+    .auth-card {
+        padding: 24px 16px;
+    }
+
     .feature-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .hero-banner {
+        padding: 40px 16px;
+        margin-bottom: 32px;
     }
 
     .hero-banner h1 {
         font-size: 1.8rem;
-    }
-
-    .page-content-wrapper {
-        padding: var(--spacing-lg) var(--spacing-sm);
     }
 
     .home-dynamic-row {
@@ -1383,5 +1431,17 @@ body {
     .notif-dropdown {
         right: -60px;
         width: 280px;
+    }
+
+    .album-grid, .photo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        gap: 16px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+    .logo a {
+        font-size: 1.05rem;
     }
 }

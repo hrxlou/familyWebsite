@@ -1,6 +1,6 @@
 # 👨‍👩‍👧‍👦 우리 가족 (FamilyWebsite Premium)
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/hrxlou/familyWebsite/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/hrxlou/familyWebsite/releases)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-lightgrey.svg)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
