@@ -87,23 +87,39 @@
                     const info = document.createElement('div');
                     info.className = 'info';
                     const nameSpan = document.createElement('span');
-                    nameSpan.innerHTML = `올린이: <strong>${escapeHtml(photo.uploader_nickname)}</strong>`;
+                    const author = photo.author_nickname || photo.uploader_nickname || '익명';
+                    nameSpan.innerHTML = `올린이: <strong>${escapeHtml(author)}</strong>`;
+                    
+                    if (photo.type === 'post') {
+                        const badge = document.createElement('span');
+                        badge.style.cssText = 'font-size: 0.7rem; background: var(--color-blue); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle;';
+                        badge.textContent = '게시글';
+                        nameSpan.appendChild(badge);
+                    }
+
                     const dateSpan = document.createElement('span');
                     dateSpan.style.cssText = 'font-size: 0.8rem; color: var(--color-text-quaternary);';
                     dateSpan.textContent = timeAgo(photo.created_at);
+                    
                     info.appendChild(nameSpan);
                     info.appendChild(dateSpan);
                     card.appendChild(info);
                     
-                    card.onclick = () => window.openLightbox(photo.url);
+                    card.onclick = () => {
+                        if (photo.type === 'post' && photo.link) {
+                            window.location.href = photo.link;
+                        } else {
+                            window.openLightbox(photo.url);
+                        }
+                    };
                     
-                    if (currentUser && (currentUser.username === 'admin' || currentUser.username === photo.uploader_username)) {
+                    if (photo.type === 'photo' && currentUser && (currentUser.username === 'admin' || currentUser.username === photo.uploader_username)) {
                         const delBtn = document.createElement('button');
                         delBtn.className = 'delete-btn';
                         delBtn.textContent = '삭제';
                         delBtn.onclick = (e) => {
                             e.stopPropagation();
-                            deletePhoto(photo.id);
+                            deletePhoto(photo.id.replace('photo_', ''));
                         };
                         card.appendChild(delBtn);
                     }
