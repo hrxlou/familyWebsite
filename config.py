@@ -28,3 +28,6 @@ class Config:
     # 업로드 허용 확장자
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB 제한
+    MAX_IMAGE_SIZE = (1920, 1920)
+    IMAGE_QUALITY = 85
+    POSTS_PER_PAGE = 5

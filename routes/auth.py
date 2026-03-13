@@ -98,28 +98,30 @@ def update_profile():
         user.introduction = request.form.get('introduction', user.introduction)
         session['nickname'] = user.nickname
 
-        avatar_choice = request.form.get('avatar_choice')
-        UPLOAD_FOLDER = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+        new_password = request.form.get('password')
+        if new_password:
+            pw_error = validate_password(new_password)
+            if pw_error:
+                return jsonify({"error": pw_error}), 400
+            user.password_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
 
-        if avatar_choice == 'default':
-            user.avatar_url = None
-        elif avatar_choice == 'upload' and 'avatar_file' in request.files:
-            file = request.files['avatar_file']
+        if 'avatar' in request.files:
+            file = request.files['avatar']
             if file and file.filename != '':
+                from utils.image_utils import process_and_save_image, delete_image_file
                 if user.avatar_url:
-                    old_filepath = os.path.join(UPLOAD_FOLDER, os.path.basename(user.avatar_url))
-                    if os.path.exists(old_filepath):
-                        os.remove(old_filepath)
-                filename = secure_filename(f"avatar_{username}_{file.filename}")
-                file.save(os.path.join(UPLOAD_FOLDER, filename))
-                user.avatar_url = f"/uploads/{filename}"
+                    try:
+                        delete_image_file(user.avatar_url)
+                    except:
+                        pass
+                user.avatar_url = process_and_save_image(file, prefix="avatar")
 
         db.session.commit()
-        return jsonify({"success": "프로필이 성공적으로 업데이트되었습니다.", "updated_user": {"username": username, "nickname": user.nickname, "introduction": user.introduction, "avatar_url": user.avatar_url}})
+        return jsonify({"success": "프로필이 성공적으로 업데이트되었습니다."})
     except Exception as e:
         db.session.rollback()
         logger.error(f"프로필 업데이트 오류: {e}")
-        return jsonify({"error": "프로필 업데이트 중 오류가 발생했습니다."}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 @auth_bp.route('/find_id', methods=['POST'])

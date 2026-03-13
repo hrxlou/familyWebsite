@@ -1,8 +1,22 @@
 from extensions import db
 from datetime import datetime
 
+class BaseModel(db.Model):
+    __abstract__ = True
+    
+    def to_dict(self):
+        """기본적인 딕셔너리 변환 메서드 (상속받아 필요한 경우 오버라이드)"""
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            if isinstance(value, datetime):
+                result[column.name] = value.isoformat()
+            else:
+                result[column.name] = value
+        return result
 
-class User(db.Model):
+
+class User(BaseModel):
     __tablename__ = 'users'
 
     username = db.Column(db.String(50), primary_key=True)
@@ -18,7 +32,7 @@ class User(db.Model):
     notifications = db.relationship('Notification', backref='user', lazy=True)
 
 
-class Post(db.Model):
+class Post(BaseModel):
     __tablename__ = 'posts'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +65,7 @@ class Post(db.Model):
         }
 
 
-class Comment(db.Model):
+class Comment(BaseModel):
     __tablename__ = 'comments'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -72,7 +86,7 @@ class Comment(db.Model):
         }
 
 
-class Photo(db.Model):
+class Photo(BaseModel):
     __tablename__ = 'photos'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -82,35 +96,20 @@ class Photo(db.Model):
     uploader_nickname = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "filename": self.filename,
-            "url": self.url,
-            "uploader_username": self.uploader_username,
-            "uploader_nickname": self.uploader_nickname,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-        }
 
-
-class Event(db.Model):
+class Event(BaseModel):
     __tablename__ = 'events'
 
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(20), nullable=False)  # YYYY-MM-DD
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), default='event')
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "date": self.date,
-            "title": self.title,
-            "type": self.type
-        }
+    category = db.Column(db.String(50), default='others')  # 'event', 'holiday', 'anniversary', 'others'
+    repeat_type = db.Column(db.String(50), default='none')  # 'none', 'yearly'
+    is_lunar = db.Column(db.Boolean, default=False)
 
 
-class Anniversary(db.Model):
+class Anniversary(BaseModel):
     __tablename__ = 'anniversaries'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -119,17 +118,8 @@ class Anniversary(db.Model):
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), default='anniversary')
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "month": self.month,
-            "day": self.day,
-            "title": self.title,
-            "type": self.type
-        }
 
-
-class Like(db.Model):
+class Like(BaseModel):
     __tablename__ = 'likes'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -140,7 +130,7 @@ class Like(db.Model):
     __table_args__ = (db.UniqueConstraint('post_id', 'username', name='unique_like'),)
 
 
-class Notification(db.Model):
+class Notification(BaseModel):
     __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -150,17 +140,8 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "message": self.message,
-            "link": self.link,
-            "is_read": self.is_read,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-        }
 
-
-class Vote(db.Model):
+class Vote(BaseModel):
     __tablename__ = 'votes'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -194,7 +175,7 @@ class Vote(db.Model):
         }
 
 
-class VoteOption(db.Model):
+class VoteOption(BaseModel):
     __tablename__ = 'vote_options'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -211,7 +192,7 @@ class VoteOption(db.Model):
         }
 
 
-class VoteResponse(db.Model):
+class VoteResponse(BaseModel):
     __tablename__ = 'vote_responses'
 
     id = db.Column(db.Integer, primary_key=True)

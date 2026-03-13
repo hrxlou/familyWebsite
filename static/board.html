@@ -26,17 +26,41 @@
                     <h2 style="font-size: 1.75rem; margin-bottom: 8px;">가족 게시판 📝</h2>
                     <p style="color: var(--color-text-secondary);">우리 가족의 소소한 이야기를 나누어보세요.</p>
                 </div>
-                <div class="flex-center gap-24">
-                    <div class="search-wrapper">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="search-input" class="toss-input search-input-pl" placeholder="검색어를 입력하세요">
+                <div class="flex-center gap-12">
+                    <div class="flex-center gap-8 glass" style="padding: 4px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border-medium);">
+                        <select id="search-type" class="toss-input" style="width: auto; border: none; background: transparent; padding: 0 8px; font-size: 0.9rem;">
+                            <option value="all">전체</option>
+                            <option value="title">제목</option>
+                            <option value="content">내용</option>
+                            <option value="author">작성자</option>
+                        </select>
+                        <div style="width: 1px; height: 20px; background: var(--color-border-medium);"></div>
+                        <div class="search-wrapper" style="width: 200px;">
+                            <span class="search-icon" style="left: 8px;">🔍</span>
+                            <input type="text" id="search-input" class="toss-input" style="border: none; background: transparent; padding-left: 32px; font-size: 0.9rem;" placeholder="검색어 입력">
+                        </div>
                     </div>
                     <a href="/write.html" class="toss-button primary" id="write-btn" style="display: none; height: 40px; padding: 0 20px; font-size: 0.9rem;">글쓰기</a>
                 </div>
             </div>
 
             <section class="content-section">
-                <div id="loading" style="text-align: center; color: var(--color-text-tertiary); padding: 40px; font-size: 0.95rem;">게시글을 불러오는 중입니다...</div>
+                <div id="loading" style="display: none;">
+                    <div class="flex-column gap-16">
+                        <div class="skeleton-card" style="height: 100px;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%;"></div>
+                        </div>
+                        <div class="skeleton-card" style="height: 100px;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text" style="width: 30%;"></div>
+                        </div>
+                        <div class="skeleton-card" style="height: 100px;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
                 <div id="post-list" class="post-list"></div>
                 <div id="pagination" class="flex-center gap-12 mt-40"></div>
             </section>
@@ -47,8 +71,9 @@
     <script>
         let currentPage = 1;
         let currentSearch = '';
+        let currentSearchType = 'all';
 
-        async function loadPosts(page, query = '') {
+        async function loadPosts(page, query = '', type = 'all') {
             const listEl = document.getElementById('post-list');
             const paginationEl = document.getElementById('pagination');
             const loadingEl = document.getElementById('loading');
@@ -57,9 +82,10 @@
             paginationEl.innerHTML = '';
             loadingEl.style.display = 'block';
             currentSearch = query;
+            currentSearchType = type;
 
             try {
-                const data = await api.get(`/posts?page=${page}&q=${encodeURIComponent(query)}`);
+                const data = await api.get(`/posts?page=${page}&q=${encodeURIComponent(query)}&type=${type}`);
                 loadingEl.style.display = 'none';
                 
                 if (data.posts.length === 0) {
@@ -110,7 +136,7 @@
                     const prevBtn = document.createElement('button');
                     prevBtn.className = 'toss-button';
                     prevBtn.textContent = '이전';
-                    prevBtn.onclick = () => loadPosts(page - 1, currentSearch);
+                    prevBtn.onclick = () => loadPosts(page - 1, currentSearch, currentSearchType);
                     paginationEl.appendChild(prevBtn);
                 }
 
@@ -118,7 +144,7 @@
                     const nextBtn = document.createElement('button');
                     nextBtn.className = 'toss-button';
                     nextBtn.textContent = '다음';
-                    nextBtn.onclick = () => loadPosts(page + 1, currentSearch);
+                    nextBtn.onclick = () => loadPosts(page + 1, currentSearch, currentSearchType);
                     paginationEl.appendChild(nextBtn);
                 }
                 
@@ -141,12 +167,17 @@
             
             let debounceTimer;
             const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('input', (e) => {
+            const searchTypeSelect = document.getElementById('search-type');
+
+            const handleSearch = () => {
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
-                    loadPosts(1, e.target.value);
+                    loadPosts(1, searchInput.value, searchTypeSelect.value);
                 }, 400);
-            });
+            };
+
+            searchInput.addEventListener('input', handleSearch);
+            searchTypeSelect.addEventListener('change', handleSearch);
         });
     </script>
     <script src="auth.js"></script>

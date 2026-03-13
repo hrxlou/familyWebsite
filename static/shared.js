@@ -100,3 +100,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === lightbox) closeLightbox();
     });
 });
+
+// --- Toast Notifications ---
+(function() {
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    document.body.appendChild(toastContainer);
+
+    window.showToast = function(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let icon = '🔔';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '🚨';
+        
+        const content = document.createElement('div');
+        content.style.display = 'flex';
+        content.style.alignItems = 'center';
+        content.style.gap = '12px';
+        content.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+        
+        toast.appendChild(content);
+        toastContainer.appendChild(toast);
+        
+        // Auto remove after animation (3s matches CSS)
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    };
+})();

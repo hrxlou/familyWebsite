@@ -57,7 +57,11 @@
                         <a href="/board.html" class="subtle-link">더보기 ></a>
                     </div>
                     <div id="recent-posts-list" class="post-list">
-                        <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                        <div class="flex-column gap-12">
+                            <div class="skeleton-text skeleton" style="width: 80%;"></div>
+                            <div class="skeleton-text skeleton" style="width: 60%;"></div>
+                            <div class="skeleton-text skeleton" style="width: 70%;"></div>
+                        </div>
                     </div>
                 </section>
 
@@ -68,7 +72,10 @@
                         <a href="/album.html" class="subtle-link">더보기 ></a>
                     </div>
                     <div id="recent-photos-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <p style="grid-column: span 2; color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                        <div class="skeleton" style="height: 120px; border-radius: 12px;"></div>
+                        <div class="skeleton" style="height: 120px; border-radius: 12px;"></div>
+                        <div class="skeleton" style="height: 120px; border-radius: 12px;"></div>
+                        <div class="skeleton" style="height: 120px; border-radius: 12px;"></div>
                     </div>
                 </section>
             </div>
@@ -80,7 +87,9 @@
                     <a href="/calendar.html" class="subtle-link">캘린더 보기 ></a>
                 </div>
                 <div id="upcoming-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
-                    <p style="color: var(--color-text-tertiary); text-align: center; padding: 20px;">불러오는 중...</p>
+                    <div class="skeleton-card skeleton" style="height: 80px;"></div>
+                    <div class="skeleton-card skeleton" style="height: 80px;"></div>
+                    <div class="skeleton-card skeleton" style="height: 80px;"></div>
                 </div>
             </section>
 

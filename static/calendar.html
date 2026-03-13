@@ -11,7 +11,7 @@
         })();
     </script>
     <title>가족 캘린더 - 우리 가족</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
+    <link rel="stylesheet" href="style.css?v=3.1">
 
     <script src="api.js"></script>
     <script src="components.js" defer></script>
@@ -75,20 +75,35 @@
             </div>
 
             <div class="mt-24 pt-24" style="border-top: 1px solid var(--color-border-light);">
-                <h3 style="font-size: 1rem; margin-bottom: 16px;">새 일정 추가 📌</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 12px;">새 일정 추가 📌</h3>
                 <div class="flex-column gap-16">
                     <input type="text" id="new-event-title" class="toss-input" placeholder="일정 제목을 입력하세요">
                     
-                    <div class="flex-center gap-16" style="justify-content: flex-start;">
-                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.9rem;">
-                            <input type="radio" name="event-type" value="event" checked> 1회성
+                    <div id="category-selector" class="flex-center gap-8" style="flex-wrap: wrap; justify-content: flex-start;">
+                        <div class="category-chip selected" data-value="event" onclick="selectCategoryChip(this)">
+                            <span class="dot" style="background: var(--color-primary);"></span>가족 행사
+                        </div>
+                        <div class="category-chip" data-value="anniversary" onclick="selectCategoryChip(this)">
+                            <span class="dot" style="background: #2ecc71;"></span>기념일
+                        </div>
+                        <div class="category-chip" data-value="holiday" onclick="selectCategoryChip(this)">
+                            <span class="dot" style="background: var(--color-red);"></span>휴일
+                        </div>
+                        <div class="category-chip" data-value="others" onclick="selectCategoryChip(this)">
+                            <span class="dot" style="background: var(--color-text-tertiary);"></span>기타
+                        </div>
+                    </div>
+                    
+                    <div class="flex-between items-center">
+                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.95rem; color: var(--color-text-secondary);">
+                            <input type="checkbox" id="new-event-repeat" value="yearly" style="width: 18px; height: 18px;"> 매년 반복
                         </label>
-                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.9rem;">
-                            <input type="radio" name="event-type" value="anniversary"> 매년 반복 (생일 등)
+                        <label class="flex-center gap-8" style="cursor:pointer; font-size:0.95rem; color: var(--color-text-secondary);">
+                            <input type="checkbox" id="new-event-lunar" value="lunar" style="width: 18px; height: 18px;"> 음력으로 계산
                         </label>
                     </div>
 
-                    <button class="toss-button primary w-full" onclick="saveEventFromModal()">추가하기</button>
+                    <button class="toss-button primary w-full" onclick="saveEventFromModal()">일정 등록하기</button>
                 </div>
             </div>
         </div>
@@ -101,6 +116,14 @@
 
         let allFetchData = [];
 
+        // Category colors
+        const categoryColors = {
+            'holiday': 'var(--color-red)',
+            'anniversary': '#2ecc71', // Green
+            'event': 'var(--color-primary)', // Blue
+            'others': 'var(--color-text-tertiary)' // Gray
+        };
+
         async function renderCalendar() {
             const gridEl = document.getElementById('calendar-grid');
             const labelEl = document.getElementById('current-month-label');
@@ -110,10 +133,22 @@
             document.getElementById('date-picker-overlay').style.display = 'none';
             
             while (gridEl.children.length > 7) gridEl.removeChild(gridEl.lastChild);
+            
+            // Add a simple loading state
+            const loadingCell = document.createElement('div');
+            loadingCell.className = 'day-cell';
+            loadingCell.style.gridColumn = '1 / span 7';
+            loadingCell.style.textAlign = 'center';
+            loadingCell.style.padding = '40px';
+            loadingCell.innerHTML = '<div class="skeleton-text skeleton" style="width:200px; margin: 0 auto;"></div>';
+            gridEl.appendChild(loadingCell);
 
             try {
                 const events = await api.get(`/events?year=${currentYear}&month=${currentMonth + 1}`);
                 allFetchData = events;
+                
+                // Remove loading state
+                gridEl.removeChild(loadingCell);
                 
                 const firstDay = new Date(currentYear, currentMonth, 1).getDay();
                 const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -145,12 +180,13 @@
                     dayEvents.forEach(e => {
                         const tag = document.createElement('div');
                         tag.className = 'event-tag';
-                        tag.textContent = e.title;
+                        const lunarIcon = e.is_lunar ? '🌙 ' : '';
+                        const repeatIcon = e.repeat_type === 'yearly' ? '🔄 ' : '';
+                        tag.textContent = lunarIcon + repeatIcon + e.title;
                         
-                        // 타입별 색상 지정
-                        if (e.type === 'holiday') tag.style.backgroundColor = 'var(--color-red)';
-                        else if (e.type === 'anniversary') tag.style.backgroundColor = '#2ecc71'; // 초록
-                        else tag.style.backgroundColor = 'var(--color-primary)'; // 파랑
+                        // Use category color
+                        const category = e.category || 'others';
+                        tag.style.backgroundColor = categoryColors[category] || categoryColors['others'];
                         
                         day.appendChild(tag);
                     });
@@ -169,6 +205,10 @@
 
             } catch (error) {
                 console.error('Calendar render failed:', error);
+                gridEl.innerHTML = `<div style="grid-column: 1 / span 7; padding: 40px; text-align: center; color: var(--color-red);">
+                    캘린더를 불러오지 못했습니다: ${error.message}<br>
+                    <button class="toss-button" onclick="renderCalendar()" style="margin-top: 16px;">다시 시도</button>
+                </div>`;
             }
         }
 
@@ -196,28 +236,30 @@
                     const item = document.createElement('div');
                     item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-bg-input); border-radius: 12px;';
 
-                    const sId = e.id.toString();
-                    const type = sId.startsWith('h_') ? 'holiday' : (sId.startsWith('a_') ? 'anniversary' : 'event');
-                    const icon = type === 'holiday' ? '🇰🇷' : (type === 'anniversary' ? '🎂' : '📌');
-                    const color = type === 'holiday' ? 'var(--color-red)' : (type === 'anniversary' ? '#2ecc71' : 'var(--color-primary)');
+                    const category = e.category || 'others';
+                    const icon = category === 'holiday' ? '🇰🇷' : (category === 'anniversary' ? '🎂' : (category === 'event' ? '📌' : '🗓️'));
+                    const repeatText = e.repeat_type === 'yearly' ? ' (매년)' : '';
+                    const lunarInfo = e.lunar_info || '';
                     
                     item.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span>${icon}</span>
-                            <span style="font-weight: 600; color: var(--color-text-primary); text-decoration: ${type === 'holiday' ? 'underline decoration-dotted' : 'none'};">${e.title}</span>
+                            <span style="font-weight: 600; color: var(--color-text-primary);">${e.title}${lunarInfo}${repeatText}</span>
                         </div>
                     `;
                     
                     // 삭제 버튼 (본인 일정 또는 관리자만)
-                    if (currentUser && type !== 'holiday') {
+                    if (currentUser && category !== 'holiday') {
                         const delBtn = document.createElement('button');
                         delBtn.innerHTML = '&times;';
                         delBtn.style.cssText = 'background: none; border: none; color: var(--color-red); font-size: 1.2rem; cursor: pointer; padding: 0 4px;';
                         
+                        // Legacy handling for IDs starting with 'a_'
                         const idValue = e.id.toString().includes('_') ? e.id.split('_')[1] : e.id;
-                        delBtn.onclick = () => deleteItem(idValue, type);
+                        const typeForDelete = e.id.toString().startsWith('a_') ? 'anniversary' : 'event';
+                        delBtn.onclick = () => deleteItem(idValue, typeForDelete);
                         item.appendChild(delBtn);
-                    } else if (type === 'holiday') {
+                    } else if (category === 'holiday') {
                         const tag = document.createElement('span');
                         tag.textContent = '공휴일';
                         tag.style.cssText = 'font-size: 0.75rem; color: var(--color-red); background: rgba(240, 68, 82, 0.1); padding: 2px 6px; border-radius: 4px;';
@@ -234,26 +276,39 @@
         function closeEventModal() {
             document.getElementById('event-modal').style.display = 'none';
             document.getElementById('new-event-title').value = '';
+            document.getElementById('new-event-repeat').checked = false;
+            document.getElementById('new-event-lunar').checked = false;
+        }
+
+        function selectCategoryChip(el) {
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
         }
 
         async function saveEventFromModal() {
-            if (!currentUser) return alert('로그인이 필요합니다.');
+            if (!currentUser) return showToast('로그인이 필요합니다.', 'error');
             const title = document.getElementById('new-event-title').value.trim();
-            if (!title) return alert('일정 제목을 입력하세요.');
+            if (!title) return showToast('일정 제목을 입력하세요.', 'error');
             
-            const typeValue = document.querySelector('input[name="event-type"]:checked').value;
+            const selectedChip = document.querySelector('.category-chip.selected');
+            const category = selectedChip ? selectedChip.dataset.value : 'others';
+            const isYearly = document.getElementById('new-event-repeat').checked;
+            const isLunar = document.getElementById('new-event-lunar').checked;
+            const repeat_type = isYearly ? 'yearly' : 'none';
             
             try {
-                if (typeValue === 'event') {
-                    await api.post('/events', { title, date: selectedDate });
-                } else {
-                    const [y, m, d] = selectedDate.split('-');
-                    await api.post('/anniversaries', { title, month: parseInt(m), day: parseInt(d) });
-                }
+                await api.post('/events', { 
+                    title, 
+                    date: selectedDate,
+                    category: category,
+                    repeat_type: repeat_type,
+                    is_lunar: isLunar
+                });
+                showToast('일정이 등록되었습니다.', 'success');
                 closeEventModal();
                 renderCalendar();
             } catch (error) {
-                alert(`추가 실패: ${error.message}`);
+                showToast(`추가 실패: ${error.message}`, 'error');
             }
         }
 
@@ -262,10 +317,11 @@
             try {
                 const endpoint = type === 'anniversary' ? `/anniversaries/${id}` : `/events/${id}`;
                 await api.delete(endpoint);
+                showToast('일정이 삭제되었습니다.', 'success');
                 closeEventModal();
                 renderCalendar();
             } catch (error) {
-                alert(`삭제 실패: ${error.message}`);
+                showToast(`삭제 실패: ${error.message}`, 'error');
             }
         }
 

@@ -107,11 +107,16 @@ async function initNotifications() {
 async function handleLogout() {
     try {
         await api.post('/logout', {});
-        alert('로그아웃 되었습니다.');
-        currentUser = null;
-        window.location.href = '/';
+        // Note: Redirecting immediately might clear the toast, 
+        // so we can either wait or just let the landing page handle it if it were different.
+        // For simplicity, we'll use alert or a slightly delayed redirect.
+        showToast('로그아웃 되었습니다.', 'success');
+        setTimeout(() => {
+            currentUser = null;
+            window.location.href = '/';
+        }, 1000);
     } catch (error) {
-        alert('로그아웃 실패: ' + error.message);
+        showToast('로그아웃 실패: ' + error.message, 'error');
     }
 }
 

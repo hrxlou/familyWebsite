@@ -4,6 +4,7 @@ import requests
 from flask import Blueprint, request, jsonify, session
 from extensions import db
 from models import Event, Anniversary
+from korean_lunar_calendar import KoreanLunarCalendar
 
 logger = logging.getLogger(__name__)
 calendar_bp = Blueprint('calendar_bp', __name__)
@@ -36,22 +37,53 @@ def handle_events():
 
         all_monthly_events = []
 
-        # Events (DB에서 LIKE로 해당 월 검색)
+        # 1. Normal Events for this month (Solar)
         month_str = f"{year}-{str(month).zfill(2)}"
-        db_events = Event.query.filter(Event.date.startswith(month_str)).all()
+        db_events = Event.query.filter(Event.date.startswith(month_str), Event.repeat_type == 'none', Event.is_lunar == False).all()
         all_monthly_events.extend([e.to_dict() for e in db_events])
 
-        # Anniversaries (DB에서 특정 월의 기념일 검색)
+        # 2. Yearly repeating Solar events
+        yearly_events = Event.query.filter_by(repeat_type='yearly', is_lunar=False).all()
+        for e in yearly_events:
+            try:
+                event_date = datetime.datetime.strptime(e.date, '%Y-%m-%d')
+                if event_date.month == month:
+                    event_dict = e.to_dict()
+                    event_dict['date'] = f"{year}-{str(month).zfill(2)}-{str(event_date.day).zfill(2)}"
+                    all_monthly_events.append(event_dict)
+            except: pass
+
+        # 3. Lunar Events (Check if they fall into this Solar month)
+        lunar_events = Event.query.filter_by(is_lunar=True).all()
+        calendar = KoreanLunarCalendar()
+        for e in lunar_events:
+            try:
+                orig_date = datetime.datetime.strptime(e.date, '%Y-%m-%d')
+                check_years = [year] if e.repeat_type == 'yearly' else [orig_date.year]
+                for check_year in check_years:
+                    calendar.setLunarDate(check_year, orig_date.month, orig_date.day, False)
+                    solar_iso = calendar.SolarIsoFormat()
+                    solar_date = datetime.datetime.strptime(solar_iso, '%Y-%m-%d')
+                    if solar_date.year == year and solar_date.month == month:
+                        event_dict = e.to_dict()
+                        event_dict['date'] = solar_iso
+                        event_dict['lunar_info'] = f" (음 {orig_date.month}/{orig_date.day})"
+                        all_monthly_events.append(event_dict)
+            except: pass
+
+        # Anniversaries (Legacy support)
         db_annivs = Anniversary.query.filter_by(month=month).all()
         for anniv in db_annivs:
             all_monthly_events.append({
                 "id": f"a_{anniv.id}",
                 "date": f"{year}-{str(anniv.month).zfill(2)}-{str(anniv.day).zfill(2)}",
                 "title": anniv.title,
-                "type": "anniversary"
+                "type": "anniversary",
+                "category": "anniversary",
+                "repeat_type": "yearly"
             })
 
-        # Holidays (캐시 활용)
+        # Holidays
         holidays_data = get_holidays(year)
         for holiday in holidays_data:
             holiday_date = datetime.datetime.strptime(holiday['date'], '%Y-%m-%d')
@@ -60,7 +92,9 @@ def handle_events():
                     "id": f"h_{holiday_date.day}",
                     "date": holiday['date'],
                     "title": holiday['localName'],
-                    "type": "holiday"
+                    "type": "holiday",
+                    "category": "holiday",
+                    "repeat_type": "none"
                 })
 
         return jsonify(all_monthly_events)
@@ -73,7 +107,10 @@ def handle_events():
             new_event = Event(
                 date=data['date'],
                 title=data['title'],
-                type="event"
+                type="event",
+                category=data.get('category', 'others'),
+                repeat_type=data.get('repeat_type', 'none'),
+                is_lunar=data.get('is_lunar', False)
             )
             db.session.add(new_event)
             db.session.commit()
@@ -162,14 +199,54 @@ def get_upcoming():
 
     upcoming_items = []
 
-    # 1. Events in the next 30 days
+    # 1. Normal Events in the next 30 days
     events = Event.query.filter(
         Event.date >= today.strftime('%Y-%m-%d'),
-        Event.date <= thirty_days_later.strftime('%Y-%m-%d')
+        Event.date <= thirty_days_later.strftime('%Y-%m-%d'),
+        Event.repeat_type == 'none'
     ).all()
     upcoming_items.extend([e.to_dict() for e in events])
 
-    # 2. Anniversaries in the next 30 days
+    # 2. Yearly Repeating Solar Events in the next 30 days
+    yearly_events = Event.query.filter_by(repeat_type='yearly', is_lunar=False).all()
+    for e in yearly_events:
+        try:
+            event_orig_date = datetime.datetime.strptime(e.date, '%Y-%m-%d').date()
+            # Try this year and next year
+            for check_year in [today.year, today.year + 1]:
+                try:
+                    event_date = datetime.date(check_year, event_orig_date.month, event_orig_date.day)
+                    if today <= event_date <= thirty_days_later:
+                        item = e.to_dict()
+                        item['date'] = event_date.strftime('%Y-%m-%d')
+                        upcoming_items.append(item)
+                except ValueError:
+                    if event_orig_date.month == 2 and event_orig_date.day == 29:
+                        event_date = datetime.date(check_year, 2, 28)
+                        if today <= event_date <= thirty_days_later:
+                            item = e.to_dict()
+                            item['date'] = event_date.strftime('%Y-%m-%d')
+                            upcoming_items.append(item)
+        except: pass
+
+    # 2.5 Yearly Repeating Lunar Events in the next 30 days
+    yearly_lunar = Event.query.filter_by(repeat_type='yearly', is_lunar=True).all()
+    calendar = KoreanLunarCalendar()
+    for e in yearly_lunar:
+        try:
+            orig_date = datetime.datetime.strptime(e.date, '%Y-%m-%d').date()
+            for check_year in [today.year, today.year + 1]:
+                calendar.setLunarDate(check_year, orig_date.month, orig_date.day, False)
+                solar_iso = calendar.SolarIsoFormat()
+                solar_date = datetime.datetime.strptime(solar_iso, '%Y-%m-%d').date()
+                if today <= solar_date <= thirty_days_later:
+                    item = e.to_dict()
+                    item['date'] = solar_iso
+                    item['lunar_info'] = f" (음 {orig_date.month}/{orig_date.day})"
+                    upcoming_items.append(item)
+        except: pass
+
+    # 3. Legacy Anniversaries in the next 30 days
     all_annivs = Anniversary.query.all()
     for anniv in all_annivs:
         try:
@@ -185,7 +262,8 @@ def get_upcoming():
                 "id": f"a_{anniv.id}",
                 "date": anniv_this_year.strftime('%Y-%m-%d'),
                 "title": anniv.title,
-                "type": "anniversary"
+                "type": "anniversary",
+                "category": "anniversary"
             })
         else:
             try:
@@ -201,7 +279,8 @@ def get_upcoming():
                     "id": f"a_{anniv.id}",
                     "date": anniv_next_year.strftime('%Y-%m-%d'),
                     "title": anniv.title,
-                    "type": "anniversary"
+                    "type": "anniversary",
+                    "category": "anniversary"
                 })
 
     # Sort by date

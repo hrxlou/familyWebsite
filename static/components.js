@@ -48,6 +48,40 @@ const FooterComponent = {
     }
 
 };
+const Toast = {
+    show(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toss-toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }, 100);
+    }
+};
+
+const Loading = {
+    show() {
+        if (document.getElementById('global-loader')) return;
+        const loader = document.createElement('div');
+        loader.id = 'global-loader';
+        loader.className = 'toss-loader-overlay';
+        loader.innerHTML = '<div class="toss-loader"></div>';
+        document.body.appendChild(loader);
+    },
+    hide() {
+        const loader = document.getElementById('global-loader');
+        if (loader) loader.remove();
+    }
+};
+
+window.Toast = Toast;
+window.Loading = Loading;
 
 // Auto-init on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {

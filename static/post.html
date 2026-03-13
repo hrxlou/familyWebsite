@@ -70,9 +70,9 @@
                 <h3 class="mb-24" style="font-size: 1.25rem;">댓글 <span id="comment-count" style="color: var(--color-primary);">0</span></h3>
                 <div id="comment-list" class="flex-column gap-16 mb-32"></div>
                 <div id="comment-form" style="display: none;">
-                    <div class="flex-center gap-12">
-                        <textarea id="comment-input" class="toss-input" placeholder="따뜻한 댓글을 남겨주세요." style="flex: 1; min-height: 80px;"></textarea>
-                        <button class="toss-button primary" onclick="submitComment()" style="height: 80px; width: 80px;">등록</button>
+                    <div class="flex-column gap-16 items-end">
+                        <textarea id="comment-input" class="toss-input" placeholder="따뜻한 댓글을 남겨주세요." style="min-height: 100px; resize: vertical;"></textarea>
+                        <button class="toss-button primary" onclick="submitComment()" style="min-width: 120px;">등록</button>
                     </div>
                 </div>
                 <div id="comment-login-msg" class="accent-card text-center">

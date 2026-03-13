@@ -1,23 +1,12 @@
-import os
-import time
 import logging
 from flask import Blueprint, request, jsonify, session, current_app
-from werkzeug.utils import secure_filename
 from sqlalchemy.orm import joinedload
 from extensions import db
 from models import Post, Comment, Notification
-from PIL import Image
+from utils.image_utils import process_and_save_image, delete_image_file
 
 logger = logging.getLogger(__name__)
 board_bp = Blueprint('board_bp', __name__)
-POSTS_PER_PAGE = 5
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @board_bp.route('/posts', methods=['GET', 'POST'])
@@ -25,15 +14,28 @@ def handle_posts():
     if request.method == 'GET':
         page = request.args.get('page', 1, type=int)
         search_query = request.args.get('q', '', type=str)
+        search_type = request.args.get('type', 'all', type=str)
 
         query = Post.query.options(joinedload(Post.comments), joinedload(Post.likes))
         if search_query:
-            query = query.filter(
-                (Post.title.contains(search_query)) |
-                (Post.content.contains(search_query))
-            )
+            if search_type == 'title':
+                query = query.filter(Post.title.contains(search_query))
+            elif search_type == 'content':
+                query = query.filter(Post.content.contains(search_query))
+            elif search_type == 'author':
+                query = query.filter(Post.author_nickname.contains(search_query))
+            else:  # 'all'
+                query = query.filter(
+                    (Post.title.contains(search_query)) |
+                    (Post.content.contains(search_query)) |
+                    (Post.author_nickname.contains(search_query))
+                )
 
-        pagination = query.order_by(Post.id.desc()).paginate(page=page, per_page=POSTS_PER_PAGE, error_out=False)
+        pagination = query.order_by(Post.id.desc()).paginate(
+            page=page, 
+            per_page=current_app.config.get('POSTS_PER_PAGE', 5), 
+            error_out=False
+        )
         current_username = session.get('username')
         posts = [post.to_dict(current_username) for post in pagination.items]
         return jsonify({
@@ -58,27 +60,10 @@ def handle_posts():
 
         if 'image' in request.files:
             file = request.files['image']
-            if file and file.filename != '':
-                if not allowed_file(file.filename):
-                    return jsonify({"error": "허용되지 않는 파일 형식입니다. (png, jpg, jpeg, gif, webp만 가능)"}), 400
-                try:
-                    original_filename, _ = os.path.splitext(file.filename)
-                    timestamp = int(time.time())
-                    filename = secure_filename(f"post_{timestamp}_{original_filename}.jpg")
-                    filepath = os.path.join(UPLOAD_FOLDER, filename)
-
-                    if not os.path.exists(UPLOAD_FOLDER):
-                        os.makedirs(UPLOAD_FOLDER)
-
-                    image = Image.open(file.stream)
-                    if image.mode in ("RGBA", "P"):
-                        image = image.convert("RGB")
-                    image.thumbnail((1920, 1920))
-                    image.save(filepath, 'JPEG', quality=85)
-                    image_url = f"/uploads/{filename}"
-                except Exception as e:
-                    logger.error(f"이미지 처리 오류: {e}")
-                    return jsonify({"error": "이미지 처리 중 오류가 발생했습니다."}), 500
+            try:
+                image_url = process_and_save_image(file, prefix="post")
+            except Exception as e:
+                return jsonify({"error": str(e)}), 400
 
         try:
             new_post = Post(
@@ -133,10 +118,7 @@ def handle_post(post_id):
         try:
             # 이미지 파일도 삭제
             if post.image_url:
-                UPLOAD_FOLDER = current_app.config.get('UPLOAD_FOLDER', 'uploads')
-                filepath = os.path.join(UPLOAD_FOLDER, os.path.basename(post.image_url))
-                if os.path.exists(filepath):
-                    os.remove(filepath)
+                delete_image_file(post.image_url)
 
             db.session.delete(post)
             db.session.commit()
