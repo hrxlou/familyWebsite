@@ -7,7 +7,15 @@ async function checkLoginStatus() {
     } catch (error) {
         currentUser = null;
     } finally {
-        updateHeader(!!currentUser, currentUser ? currentUser.nickname : '');
+        const navUserSection = document.getElementById('nav-user-section');
+        if (navUserSection) {
+            updateHeader(!!currentUser, currentUser ? currentUser.nickname : '');
+        } else {
+            // Header might not be rendered yet, wait for it
+            document.addEventListener('header-rendered', () => {
+                updateHeader(!!currentUser, currentUser ? currentUser.nickname : '');
+            }, { once: true });
+        }
         document.dispatchEvent(new CustomEvent('auth-checked'));
     }
 }

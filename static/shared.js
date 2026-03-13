@@ -103,11 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Toast Notifications ---
 (function() {
-    const toastContainer = document.createElement('div');
-    toastContainer.id = 'toast-container';
-    document.body.appendChild(toastContainer);
+    const initToast = () => {
+        if (document.getElementById('toast-container')) return;
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initToast);
+    } else {
+        initToast();
+    }
 
     window.showToast = function(message, type = 'info') {
+        initToast(); // Ensure it exists
+        const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
