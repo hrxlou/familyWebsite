@@ -172,14 +172,61 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-shrink: 1;
+    min-width: 0; /* Allow shrinking */
+}
+
+.logo {
+    margin: 0;
+    display: flex;
+    align-items: center;
 }
 
 .logo a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 1.4rem;
     font-weight: 800;
     color: var(--color-primary);
     text-decoration: none;
     letter-spacing: -0.03em;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.main-nav {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-base);
+}
+
+.nav-link:hover {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.nav-link.active {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
 }
 
 /* --- UI Components --- */
@@ -451,23 +498,6 @@ body {
     padding: 0 var(--spacing-md);
 }
 
-.footer-links {
-    margin-top: 12px;
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-}
-
-.footer-links a {
-    color: var(--color-text-tertiary);
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.footer-links a:hover {
-    color: var(--color-primary);
-}
-
 /* --- Misc Utilities --- */
 .toss-input {
     width: 100%;
@@ -494,6 +524,71 @@ body {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
     border: var(--glass-border);
+}
+
+@media (max-width: 1100px) {
+    .header-left {
+        gap: 20px;
+    }
+    .main-nav {
+        gap: 12px;
+    }
+    .user-greeting {
+        display: none; /* Hide greeting earlier to save space */
+    }
+}
+
+@media (max-width: 960px) {
+    .header-inner {
+        flex-direction: column;
+        height: auto;
+        padding: 12px var(--spacing-md);
+        gap: 8px;
+    }
+    .toss-header {
+        height: auto;
+    }
+    .header-left {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .main-nav {
+        overflow-x: auto;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+        flex: 1;
+        justify-content: flex-start;
+        scrollbar-width: none;
+    }
+    .main-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        flex-shrink: 0;
+    }
+    .nav-right {
+        width: 100%;
+        justify-content: flex-end; /* Align user actions to the right like on desktop */
+        border-top: 1px solid var(--color-border-light);
+        padding-top: 8px;
+        gap: 16px;
+    }
+    .header-user-info {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a {
+        font-size: 1.1rem;
+    }
+    .nav-link {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
 }
 
 /* --- Upcoming Cards --- */

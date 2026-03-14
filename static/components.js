@@ -2,10 +2,29 @@
 
 const HeaderComponent = {
     render() {
+        const currentPath = window.location.pathname;
+        const links = [
+            { name: '홈', path: '/' },
+            { name: '게시판', path: '/board.html' },
+            { name: '앨범', path: '/album.html' },
+            { name: '캘린더', path: '/calendar.html' },
+            { name: '투표', path: '/vote.html' }
+        ];
+
+        const navLinks = links.map(link => {
+            const isActive = currentPath === link.path || (currentPath === '' && link.path === '/') || (currentPath === '/index.html' && link.path === '/');
+            return `<a href="${link.path}" class="nav-link ${isActive ? 'active' : ''}">${link.name}</a>`;
+        }).join('');
+
         return `
             <header class="toss-header">
                 <div class="header-inner">
-                    <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
+                    <div class="header-left">
+                        <h1 class="logo"><a href="/">👨‍👩‍👧‍👦 우리 가족</a></h1>
+                        <nav class="main-nav">
+                            ${navLinks}
+                        </nav>
+                    </div>
                     <nav id="nav-user-section" class="nav-right"></nav>
                 </div>
             </header>
@@ -27,13 +46,6 @@ const FooterComponent = {
             <footer class="toss-footer">
                 <div class="footer-inner">
                     <p>© 2026 FamilyWebsite Premium</p>
-                    <div class="footer-links">
-                        <a href="/">홈</a>
-                        <a href="/board.html">게시판</a>
-                        <a href="/album.html">앨범</a>
-                        <a href="/calendar.html">캘린더</a>
-                        <a href="/vote.html">투표</a>
-                    </div>
                 </div>
             </footer>
         `;
