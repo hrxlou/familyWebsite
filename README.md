@@ -1,42 +1,42 @@
-# 👨‍👩‍👧‍👦 우리 가족 (FamilyWebsite Premium)
+# 👨‍👩‍👧‍👦 우리 가족 (FamilyWebsite)
+
+가족 구성원들이 사진, 게시글, 그리고 일정을 공유할 수 있는 가족 전용 커뮤니티 플랫폼입니다.  
+현대적이고 직관적인 UI를 제공하여 가족 간의 소통을 돕습니다.
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/hrxlou/familyWebsite/releases)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-lightgrey.svg)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-가족들만의 소중한 사진, 게시물, 그리고 일정을 공유하는 **프리미엄 패밀리 플랫폼**입니다.  
-토스(Toss)의 정갈한 디자인 시스템을 모티프 삼아, 현대적이고 직관적인 사용자 경험을 선사합니다.
-
 ---
 
-## ✨ 주요 기능 (Key Features)
+## 🚀 주요 기능 (Key Features)
 
-### 1. 📝 스마트 가족 게시판
-*   **일상의 기록**: 텍스트와 고화질 이미지를 활용한 풍성한 포스팅.
-*   **활발한 소통**: 실시간 댓글 시스템으로 나누는 가족 간의 대화.
-*   **강력한 검색**: 키워드 기반 필터링으로 소중한 추억을 빠르게 탐색.
+### 1. 📝 가족 게시판
+*   **게시글 작성**: 텍스트와 이미지를 포함한 일상 기록 기능.
+*   **댓글 시스템**: 게시글에 대한 실시간 가족 간 소통 지원.
+*   **검색 기능**: 키워드를 통한 이전 게시글 탐색.
 
-### 2. 📸 고품격 가족 앨범
-*   **몰입형 뷰어**: 글래스모피즘이 적용된 라이트박스로 감상하는 고화질 사진.
-*   **지능형 관리**: 날짜 및 카테고리별 자동 분류 시스템.
+### 2. 📸 가족 앨범
+*   **사진 뷰어**: 고화질 사진을 위한 슬라이드 및 라이트박스 뷰어.
+*   **앨범 관리**: 날짜 및 카테고리별 사진 분류 기능.
 
-### 3. 🗳️ 가족 투표 및 의사결정 (New!)
-*   **투표 시스템**: 저녁 메뉴 정하기부터 휴가 계획까지, 가족 간의 민주적인 의사결정 지원.
-*   **실시간 투표**: 역동적인 차트와 결과 확인 기능.
+### 3. 🗳️ 가족 투표
+*   **의사결정 지원**: 휴가 계획이나 식사 메뉴 등 가족 내 투표 기능.
+*   **실시간 결과**: 투표 현황을 실시간으로 확인하는 차트 제공.
 
-### 4. 🔔 지능형 알림 시스템 (New!)
-*   **실시간 알림**: 새로운 게시글, 댓글, 등록된 일정에 대한 즉각적인 피드백.
-*   **맞춤형 알림**: 개인별 중요도를 고려한 스마트 알림 센터 구축.
+### 4. 🔔 알림 시스템
+*   **실시간 알림**: 새 게시글, 댓글, 일정 등록 시 알림 제공.
+*   **알림 센터**: 개인별 알림 내역 확인 및 관리.
 
-### 5. 📅 스마트 캘린더 & 일정
-*   **기념일 관리**: 생일, 제사, 가족 행사를 잊지 않게 챙겨주는 D-Day 기능.
-*   **일정 동기화**: 모든 가족 구성원이 실시간으로 공유하는 통합 일정표.
+### 5. 📅 캘린더 & 일정
+*   **공유 일정**: 가족 구성원 모두가 확인 가능한 통합 캘린더.
+*   **기념일 관리**: 생일, 제사 등 중요한 가족 행사 알림 및 D-Day 표시.
 
-### 6. 🌙 프리미엄 UI/UX & PWA
-*   **다크 모드**: 시각적 편안함과 세련미를 동시에 제공하는 완벽한 다크 테마.
-*   **글래스모피즘**: 고급스러운 투명도와 블러 효과가 적용된 현대적 UI.
-*   **PWA 지원**: 앱 설치 없이도 앱처럼 빠르고 편리한 익스피리언스 제공.
+### 6. 🌙 UI/UX & PWA
+*   **다크 모드**: 다크 테마 지원으로 시각적 편안함 제공.
+*   **반응형 디자인**: 모바일 및 PC 환경에 최적화된 레이아웃.
+*   **PWA 지원**: 앱 설치 기능을 통해 접근성 강화.
 
 ---
 
@@ -45,13 +45,13 @@
 | 구분 | 기술 |
 | :--- | :--- |
 | **Backend** | Python 3, Flask, SQLAlchemy |
-| **Database** | SQLite3 (Easy Setup, Zero Config) |
-| **Frontend** | Vanilla JS (ES6+), CSS3 (Modern Glassmorphism), HTML5 |
-| **Infrastructure** | PWA (Service Workers), RESTful API Design |
+| **Database** | SQLite3 |
+| **Frontend** | Vanilla JS (ES6+), CSS3, HTML5 |
+| **Infrastructure** | PWA, RESTful API |
 
 ---
 
-## 🚀 빠른 시작 (Quick Start)
+## ⚙️ 실행 방법 (Usage)
 
 ### 1. 환경 설정
 ```bash
@@ -67,7 +67,7 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-브라우저에서 `http://localhost:5000`으로 접속하여 테스트!
+브라우저에서 `http://localhost:5000`으로 접속하여 확인하세요.
 
 ---
 
@@ -75,11 +75,12 @@ python app.py
 
 ```text
 .
-├── app.py              # 시스템 메인 엔트리 및 API 서버
-├── models.py           # 데이터베이스 통합 모델 (User, Post, Vote, etc.)
-├── config.py           # 서비스 전역 설정 로직
-├── routes/             # 도메인별 모듈화된 라우트 핸들러
-├── static/             # 리소스 (Design Tokens, Components, Assets)
-└── templates/          # (Optional) 서버 사이드 렌더링 템플릿
+├── app.py              # 애플리케이션 엔트리 포인트
+├── models.py           # 데이터베이스 모델 (User, Post, Vote 등)
+├── config.py           # 시스템 전역 설정
+├── routes/             # 도메인별 라우트 핸들러
+├── static/             # 정적 리소스 (JS, CSS, Images)
+└── templates/          # HTML 템플릿 파일
 ```
+
 
